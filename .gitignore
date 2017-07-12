@@ -1,0 +1,10 @@
+nohup.out
+data_preprocess/embed/*
+data_preprocess/train/*
+data_preprocess/train_all/*
+data_preprocess/val/*
+data_preprocess/test/*
+data_preprocess/topic/*
+ieee_zhihu_cup/*
+src/snapshots/*
+src/nohup.out
