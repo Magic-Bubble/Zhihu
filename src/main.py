@@ -47,6 +47,7 @@ def train(**kwargs):
     logger.info('Using model {}'.format(opt['model']))
     Model = getattr(models, opt['model'])
     model = Model(embed_mat, opt)
+    print model
 
     if opt['use_self_loss']:
         Loss = getattr(models, opt['loss_function'])

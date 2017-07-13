@@ -8,3 +8,4 @@ data_preprocess/topic/*
 ieee_zhihu_cup/*
 src/snapshots/*
 src/nohup.out
+*.pyc
