@@ -77,17 +77,17 @@ def train(**kwargs):
     base_epoch = opt['base_epoch']
     for epoch in range(1, opt['epochs']+1):
         for i, batch in enumerate(train_loader, 0):
-            # text, label = batch
-            # text, label = Variable(text), Variable(label).float()
-            title, desc, label = batch
-            title, desc, label = Variable(title), Variable(desc), Variable(label).float()
+            text, label = batch
+            text, label = Variable(text), Variable(label).float()
+            # title, desc, label = batch
+            # title, desc, label = Variable(title), Variable(desc), Variable(label).float()
             if opt['cuda']:
-                # text, label = text.cuda(), label.cuda()
-                title, desc, label = title.cuda(), desc.cuda(), label.cuda()
+                text, label = text.cuda(), label.cuda()
+                # title, desc, label = title.cuda(), desc.cuda(), label.cuda()
                 
             optimizer.zero_grad()
-            # logit = model(text)
-            logit = model(title, desc)
+            logit = model(text)
+            # logit = model(title, desc)
             
             loss = loss_function(logit, label)
             loss.backward()
@@ -114,15 +114,15 @@ def eval(val_loader, model, opt):
     model.eval()
     predict_label_list, marked_label_list = [], []
     for i, batch in enumerate(val_loader, 0):
-        # text, label = batch
-        # text, label = Variable(text), Variable(label)
-        title, desc, label = batch
-        title, desc, label = Variable(title), Variable(desc), Variable(label)
+        text, label = batch
+        text, label = Variable(text), Variable(label)
+        # title, desc, label = batch
+        # title, desc, label = Variable(title), Variable(desc), Variable(label)
         if opt['cuda']:
-            # text, label = text.cuda(), label.cuda()
-            title, desc, label = title.cuda(), desc.cuda(), label.cuda()
-        # logit = model(text)
-        logit = model(title, desc)
+            text, label = text.cuda(), label.cuda()
+            # title, desc, label = title.cuda(), desc.cuda(), label.cuda()
+        logit = model(text)
+        # logit = model(title, desc)
         predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
         marked_label_list += [list(np.where(ii.cpu().numpy()==1)[0]) for ii in label.data]
 

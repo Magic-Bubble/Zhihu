@@ -23,7 +23,7 @@ class RNN(nn.Module):
         self.td1 = TimeDistributed(self.tdfc1)
         self.tdbn1 = nn.BatchNorm2d(1)
         
-        self.rnn = nn.GRU(512, hidden_num, bidirectional=True, batch_first=True)
+        self.rnn = nn.GRU(512, hidden_num, 2, bidirectional=True, batch_first=True, dropout=opt['dropout'])
         # self.fc1 = nn.Linear(hidden_num*2, C)
         self.fc1 = nn.Linear(hidden_num*2, 256)
         self.bn1 = nn.BatchNorm1d(256)
@@ -38,11 +38,11 @@ class RNN(nn.Module):
             
         x = F.relu(self.tdbn1(self.td1(x).unsqueeze(1))).squeeze(1)
         
-        h0 = Variable(torch.randn(2, batch_size, self.hidden_num))
+        h0 = Variable(torch.randn(4, batch_size, self.hidden_num))
         if self.opt['cuda']:
             h0 = h0.cuda()
         _, x = self.rnn(x, h0)
-        x = x.transpose(0, 1).contiguous().view(batch_size, -1)
+        x = x[-2:].transpose(0, 1).contiguous().view(batch_size, -1)
 
         # logit = self.fc1(x)
         x = F.relu(self.bn1(self.fc1(x)))
