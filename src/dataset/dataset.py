@@ -20,10 +20,10 @@ class Dataset:
         desc = torch.from_numpy(self.desc[idx])
         if self.test is False:
             label = torch.zeros(self.n_classes).scatter_(0, torch.from_numpy(self.label[idx]).long(), 1).int()
-            return torch.cat((title, desc)), label
-            # return title, desc, label
-        return torch.cat((title, desc))
-        # return title, desc
+            # return torch.cat((title, desc)), label
+            return title, desc, label
+        # return torch.cat((title, desc))
+        return title, desc
 
     def __len__(self):
         return self.title.shape[0]

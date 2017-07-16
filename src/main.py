@@ -5,11 +5,12 @@ from torch.autograd import Variable
 from torch.utils import data
 import numpy as np
 import fire
+import datetime
 
 from config import DefaultConfig
 from dataset import Dataset
 import models
-from utils import load_model, save_model, Visualizer, Logger
+from utils import load_model, save_model, Visualizer, Logger, write_result
 
 def train(**kwargs):
     opt = DefaultConfig()
@@ -68,6 +69,11 @@ def train(**kwargs):
     if opt['cuda']:
         model.cuda()
         
+    # import sys
+    # precision, recall, score = eval(val_loader, model, opt)
+    # print precision, recall, score
+    # sys.exit()
+        
     optimizer = torch.optim.Adam(model.parameters(), lr=opt['lr'])
     
     logger.info('Start running...')
@@ -77,17 +83,17 @@ def train(**kwargs):
     base_epoch = opt['base_epoch']
     for epoch in range(1, opt['epochs']+1):
         for i, batch in enumerate(train_loader, 0):
-            text, label = batch
-            text, label = Variable(text), Variable(label).float()
-            # title, desc, label = batch
-            # title, desc, label = Variable(title), Variable(desc), Variable(label).float()
+            # text, label = batch
+            # text, label = Variable(text), Variable(label).float()
+            title, desc, label = batch
+            title, desc, label = Variable(title), Variable(desc), Variable(label).float()
             if opt['cuda']:
-                text, label = text.cuda(), label.cuda()
-                # title, desc, label = title.cuda(), desc.cuda(), label.cuda()
+                # text, label = text.cuda(), label.cuda()
+                title, desc, label = title.cuda(), desc.cuda(), label.cuda()
                 
             optimizer.zero_grad()
-            logit = model(text)
-            # logit = model(title, desc)
+            # logit = model(text)
+            logit = model(title, desc)
             
             loss = loss_function(logit, label)
             loss.backward()
@@ -102,6 +108,8 @@ def train(**kwargs):
                                 corrects, opt['batch_size'] * opt['class_num'])
                 logger.info(log_info)
                 vis.plot('loss', loss.data[0])
+                precision, recall, score = eval(batch, model, opt, isBatch=True)
+                vis.plot('score', score)
         logger.info('Training epoch {} finished!'.format(epoch + base_epoch))
         precision, recall, score = eval(val_loader, model, opt)
         log_info = 'Epoch[{}] - score: {:.6f} (precision: {:.4f}, recall: {:.4f})'.format( \
@@ -110,21 +118,34 @@ def train(**kwargs):
         save_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
                     epoch=epoch+base_epoch, score=score)
 								
-def eval(val_loader, model, opt):
+def eval(val_loader, model, opt, isBatch=False):
     model.eval()
     predict_label_list, marked_label_list = [], []
-    for i, batch in enumerate(val_loader, 0):
-        text, label = batch
-        text, label = Variable(text), Variable(label)
-        # title, desc, label = batch
-        # title, desc, label = Variable(title), Variable(desc), Variable(label)
+    if isBatch:
+        # text, label = val_loader
+        # text, label = Variable(text), Variable(label)
+        title, desc, label = val_loader
+        title, desc, label = Variable(title), Variable(desc), Variable(label)
         if opt['cuda']:
-            text, label = text.cuda(), label.cuda()
-            # title, desc, label = title.cuda(), desc.cuda(), label.cuda()
-        logit = model(text)
-        # logit = model(title, desc)
+            # text, label = text.cuda(), label.cuda()
+            title, desc, label = title.cuda(), desc.cuda(), label.cuda()
+        # logit = model(text)
+        logit = model(title, desc)
         predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
         marked_label_list += [list(np.where(ii.cpu().numpy()==1)[0]) for ii in label.data]
+    else:
+        for i, batch in enumerate(val_loader, 0):
+            # text, label = batch
+            # text, label = Variable(text), Variable(label)
+            title, desc, label = batch
+            title, desc, label = Variable(title), Variable(desc), Variable(label)
+            if opt['cuda']:
+                # text, label = text.cuda(), label.cuda()
+                title, desc, label = title.cuda(), desc.cuda(), label.cuda()
+            # logit = model(text)
+            logit = model(title, desc)
+            predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
+            marked_label_list += [list(np.where(ii.cpu().numpy()==1)[0]) for ii in label.data]
 
     right_label_num = 0
     right_label_at_pos_num = [0, 0, 0, 0, 0]
@@ -147,9 +168,9 @@ def eval(val_loader, model, opt):
 
     return precision, recall, score
 								
-def train_all(**args):
+def train_all(**kwargs):
     opt = DefaultConfig()
-    opt.update(**args)
+    opt.update(**kwargs)
 
     vis = Visualizer(opt['model'])
     logger = Logger()
@@ -175,34 +196,47 @@ def train_all(**args):
     logger.info('Using model {}'.format(opt['model']))
     Model = getattr(models, opt['model'])
     model = Model(embed_mat, opt)
+    print model
 
     if opt['use_self_loss']:
-        Loss = getattr(models, opt['self_loss'])
+        Loss = getattr(models, opt['loss_function'])
     else:
         Loss = getattr(nn, opt['loss_function'])
     loss_function = Loss()
     
     if opt['load']:
-        model = load_model(model, model_dir=opt['model_dir'], model_name=opt['model'])
+        if opt.get('load_name', None) is None:
+            model = load_model(model, model_dir=opt['model_dir'], model_name=opt['model'])
+        else:
+            model = load_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
+                              name=opt['load_name'])
     
+    if opt['device'] != None:
+        torch.cuda.set_device(opt['device'])
+
     if opt['cuda']:
         model.cuda()
         
     optimizer = torch.optim.Adam(model.parameters(), lr=opt['lr'])
-
+    
     logger.info('Start running...')
 
     steps = 0
     model.train()
+    base_epoch = opt['base_epoch']
     for epoch in range(1, opt['epochs']+1):
         for i, batch in enumerate(train_loader, 0):
-            text, label = batch
-            text, label = Variable(text), Variable(label)
+            # text, label = batch
+            # text, label = Variable(text), Variable(label).float()
+            title, desc, label = batch
+            title, desc, label = Variable(title), Variable(desc), Variable(label).float()
             if opt['cuda']:
-                text, label = text.cuda(), label.cuda()
+                # text, label = text.cuda(), label.cuda()
+                title, desc, label = title.cuda(), desc.cuda(), label.cuda()
                 
             optimizer.zero_grad()
-            logit = model(text)
+            # logit = model(text)
+            logit = model(title, desc)
             
             loss = loss_function(logit, label)
             loss.backward()
@@ -213,16 +247,17 @@ def train_all(**args):
                 corrects = ((logit.data > opt['threshold']) == label.data.byte()).sum()
                 accuracy = 100.0 * corrects / (opt['batch_size'] * opt['class_num'])
                 log_info = 'Steps[{:>8}] (epoch[{:>2}] / batch[{:>5}]) - loss: {:.6f}, acc: {:.4f} % ({} / {})'.format( \
-                                steps, epoch, (i+1), loss.data[0], accuracy, \
+                                steps, epoch + base_epoch, (i+1), loss.data[0], accuracy, \
                                 corrects, opt['batch_size'] * opt['class_num'])
                 logger.info(log_info)
                 vis.plot('loss', loss.data[0])
+        logger.info('Training epoch {} finished!'.format(epoch + base_epoch))
         save_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
-                    epoch=epoch)
+                    epoch=epoch+base_epoch)
 		
-def test(**args):
+def test(**kwargs):
     opt = DefaultConfig()
-    opt.update(**args)
+    opt.update(**kwargs)
 
     logger = Logger()
 
@@ -250,7 +285,14 @@ def test(**args):
     model = Model(embed_mat, opt)
     
     if opt['load']:
-        model = load_model(model, model_dir=opt['model_dir'], model_name=opt['model'])
+        if opt.get('load_name', None) is None:
+            model = load_model(model, model_dir=opt['model_dir'], model_name=opt['model'])
+        else:
+            model = load_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
+                              name=opt['load_name'])
+    
+    if opt['device'] != None:
+        torch.cuda.set_device(opt['device'])
     
     if opt['cuda']:
         model.cuda()
@@ -260,11 +302,15 @@ def test(**args):
     model.eval()
     predict_label_list = []
     for i, batch in enumerate(test_loader, 0):
-        text = batch
-        text = Variable(text)
+        # text = batch
+        # text = Variable(text)
+        title, desc = batch
+        title, desc = Variable(title), Variable(desc)
         if opt['cuda']:
-            text = text.cuda()
-        logit = model(text)
+            # text = text.cuda()
+            title, desc = title.cuda(), desc.cuda()
+        # logit = model(text)
+        logit = model(title, desc)
         predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
 
     lines = []
@@ -272,8 +318,11 @@ def test(**args):
         topic_ids = [topic_idx[i] for i in top5]
         lines.append('{},{}'.format(qid, ','.join(topic_ids)))
 
-    with open(opt['result'], 'w') as output:
-        output.write('\n'.join(lines))
+    if opt.get('load_name', None) is None:
+        write_result(lines, model_dir=opt['model_dir'], model_name=opt['model'], result_dir=opt['result_dir'])
+    else:
+        write_result(lines, model_dir=opt['model_dir'], model_name=opt['model'], \
+                          name=opt['load_name'], result_dir=opt['result_dir'])
                      
 if __name__ == '__main__':
     fire.Fire()

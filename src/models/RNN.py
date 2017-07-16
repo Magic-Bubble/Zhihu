@@ -23,28 +23,44 @@ class RNN(nn.Module):
         self.td1 = TimeDistributed(self.tdfc1)
         self.tdbn1 = nn.BatchNorm2d(1)
         
-        self.rnn = nn.GRU(512, hidden_num, 2, bidirectional=True, batch_first=True, dropout=opt['dropout'])
-        # self.fc1 = nn.Linear(hidden_num*2, C)
-        self.fc1 = nn.Linear(hidden_num*2, 256)
-        self.bn1 = nn.BatchNorm1d(256)
-        self.fc2 = nn.Linear(256, C)
+        self.tdfc2 = nn.Linear(D, 512)
+        self.td2 = TimeDistributed(self.tdfc2)
+        self.tdbn2 = nn.BatchNorm2d(1)
         
-    def forward(self, x):
+        self.rnn1 = nn.GRU(512, hidden_num, 1, bidirectional=True, batch_first=True)
+        self.rnn2 = nn.GRU(512, hidden_num, 1, bidirectional=True, batch_first=True)
+        
+        self.fc1 = nn.Linear(hidden_num*4, 512)
+        self.bn1 = nn.BatchNorm1d(512)
+        self.fc2 = nn.Linear(512, C)
+        
+    def forward(self, x, y):
         batch_size = x.size(0)
         
         x = self.embed(x.long())
         if self.opt['static']:
             x = x.detach()
-            
         x = F.relu(self.tdbn1(self.td1(x).unsqueeze(1))).squeeze(1)
         
-        h0 = Variable(torch.randn(4, batch_size, self.hidden_num))
+        y = self.embed(y.long())
+        if self.opt['static']:
+            y = y.detach()
+        y = F.relu(self.tdbn2(self.td2(y).unsqueeze(1))).squeeze(1)
+        
+        h0_1 = Variable(torch.randn(2, batch_size, self.hidden_num))
         if self.opt['cuda']:
-            h0 = h0.cuda()
-        _, x = self.rnn(x, h0)
-        x = x[-2:].transpose(0, 1).contiguous().view(batch_size, -1)
+            h0_1 = h0_1.cuda()
+        _, z1 = self.rnn1(x, h0_1)
+        x = z1[-2:].transpose(0, 1).contiguous().view(batch_size, -1)
 
-        # logit = self.fc1(x)
+        h0_2 = Variable(torch.randn(2, batch_size, self.hidden_num))
+        if self.opt['cuda']:
+            h0_2 = h0_2.cuda()
+        _, z2 = self.rnn2(y, h0_2)
+        y = z2[-2:].transpose(0, 1).contiguous().view(batch_size, -1)
+        
+        x = torch.cat((x, y), 1)
+        
         x = F.relu(self.bn1(self.fc1(x)))
         logit = self.fc2(x)
         return logit

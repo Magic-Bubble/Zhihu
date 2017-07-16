@@ -67,7 +67,7 @@ class DefaultConfig(dict):
 		self['cuda'] = True
 		self['threshold'] = 0.5
 
-		self['result'] = 'result.csv'
+		self['result_dir'] = 'results'
         
     def update(self, **args):
         for key in args:
