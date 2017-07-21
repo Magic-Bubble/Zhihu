@@ -25,8 +25,10 @@ def save_model(model, **kwargs):
 		cur_time = datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')
 		if kwargs.get('score', None) is None:
 			name = 'epoch_{}_{}.params'.format(kwargs['epoch'], cur_time)
-		else:
+		elif kwargs.get('folder', None) is None:
 			name = 'epoch_{}_{}_{:.4f}.params'.format(kwargs['epoch'], cur_time, kwargs['score'])
+		else:
+			name = 'folder_{}_epoch_{}_{}_{:.4f}.params'.format(kwargs['folder'], kwargs['epoch'], cur_time, kwargs['score'])
 	else:
 		name = kwargs.get('name')
 	torch.save(model.state_dict(), '{}/{}'.format(save_dir, name))

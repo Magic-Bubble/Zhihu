@@ -27,8 +27,8 @@ class RNN(nn.Module):
         self.td2 = TimeDistributed(self.tdfc2)
         self.tdbn2 = nn.BatchNorm2d(1)
         
-        self.rnn1 = nn.GRU(512, hidden_num, 1, bidirectional=True, batch_first=True)
-        self.rnn2 = nn.GRU(512, hidden_num, 1, bidirectional=True, batch_first=True)
+        self.rnn1 = nn.GRU(512, hidden_num, bidirectional=True, batch_first=True)
+        self.rnn2 = nn.GRU(512, hidden_num, bidirectional=True, batch_first=True)
         
         self.fc1 = nn.Linear(hidden_num*4, 512)
         self.bn1 = nn.BatchNorm1d(512)
