@@ -41,12 +41,12 @@ class DefaultConfig(dict):
 		# self['train_desc_char_all_2'] = self['train_all_dir'] + 'train_desc_char_indices_all_2.npy'
 		# self['train_desc_word_all_2'] = self['train_all_dir'] + 'train_desc_word_indices_all_2.npy'
 
-		self['train_all_dir'] = self['data_dir'] + 'val/'
-		self['train_title_char_all'] = self['val_dir'] + 'val_title_char_indices.npy'
-		self['train_title_word_all'] = self['val_dir'] + 'val_title_word_indices.npy'
-		self['train_desc_char_all'] = self['val_dir'] + 'val_desc_char_indices.npy'
-		self['train_desc_word_all'] = self['val_dir'] + 'val_desc_word_indices.npy'
-		self['train_label_all'] = self['val_dir'] + 'val_label_indices.npy'
+		self['train_all_dir'] = self['data_dir'] + 'train/'
+		self['train_title_char_all'] = self['train_all_dir'] + 'train_title_char_indices.npy'
+		self['train_title_word_all'] = self['train_all_dir'] + 'train_title_word_indices.npy'
+		self['train_desc_char_all'] = self['train_all_dir'] + 'train_desc_char_indices.npy'
+		self['train_desc_word_all'] = self['train_all_dir'] + 'train_desc_word_indices.npy'
+		self['train_label_all'] = self['train_all_dir'] + 'train_label_indices.npy'
 
 		self['test_dir'] = self['data_dir'] + 'test/'
 		self['test_idx'] = self['test_dir'] + 'test_idx.npy'
@@ -80,7 +80,6 @@ class DefaultConfig(dict):
 		self['use_self_loss'] = False
 		self['loss_function'] = 'MultiLabelSoftMarginLoss'
 		self['load_loss_weight'] = False
-		self['load_folder'] = 0
 		self['load'] = False
 		self['load_name'] = None
 		self['model_dir'] = 'snapshots'

@@ -215,8 +215,8 @@ def train_all(**kwargs):
         Loss = getattr(nn, opt['loss_function'])
 
     if opt['load_loss_weight']:
-        error_per_class = torch.load('{}/{}/folder_{}_error_per_class.pt'.format(opt['model_dir'], opt['model'], opt['load_folder']), map_location=lambda storage, loc: storage)
-        sample_per_class = torch.load('{}/{}/folder_{}_sample_per_class.pt'.format(opt['model_dir'], opt['model'], opt['load_folder']), map_location=lambda storage, loc: storage)
+        error_per_class = torch.load('{}/{}/folder_{}_error_per_class.pt'.format(opt['model_dir'], opt['model'], opt['base_folder']), map_location=lambda storage, loc: storage)
+        sample_per_class = torch.load('{}/{}/folder_{}_sample_per_class.pt'.format(opt['model_dir'], opt['model'], opt['base_folder']), map_location=lambda storage, loc: storage)
         loss_weight = error_per_class / sample_per_class * 2
     else:
         error_per_class = torch.zeros(opt['class_num'])
@@ -227,6 +227,8 @@ def train_all(**kwargs):
         sample_per_class = sample_per_class.cuda()
         loss_weight = loss_weight.cuda()
     loss_function = Loss(weight=loss_weight)
+    
+    print loss_weight
     
     if opt['load']:
         if opt.get('load_name', None) is None:
@@ -283,8 +285,8 @@ def train_all(**kwargs):
                 log_info = 'Folder[{}], Epoch[{}] - score: {:.6f} (precision: {:.4f}, recall: {:.4f})'.format( \
                                     cv_num, epoch, score, precision, recall)
                 vis.log(log_info)
-                # save_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
-                        # epoch=epoch, score=score, folder=cv_num)
+                save_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
+                        epoch=epoch, score=score, folder=cv_num)
             else:
                 save_model(model, model_dir=opt['model_dir'], model_name=opt['model'], epoch=epoch)
             if epoch == 2:
