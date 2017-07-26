@@ -45,7 +45,7 @@ def train(**kwargs):
     train_dataset = Dataset(title=train_title, desc=train_desc, label=train_label, class_num=opt['class_num'])
     train_loader = data.DataLoader(train_dataset, shuffle=True, batch_size=opt['batch_size'])
     val_dataset = Dataset(title=val_title, desc=val_desc, label=val_label, class_num=opt['class_num'])
-    val_loader = data.DataLoader(val_dataset, shuffle=True, batch_size=opt['batch_size'])
+    val_loader = data.DataLoader(val_dataset, shuffle=False, batch_size=opt['batch_size'])
     
     logger.info('Using model {}'.format(opt['model']))
     Model = getattr(models, opt['model'])
@@ -71,10 +71,10 @@ def train(**kwargs):
     if opt['cuda']:
         model.cuda()
         
-    import sys
-    precision, recall, score = eval(val_loader, model, opt, save=True)
-    print precision, recall, score
-    sys.exit()
+    #import sys
+    #precision, recall, score = eval(val_loader, model, opt, save=True)
+    #print precision, recall, score
+    #sys.exit()
         
     optimizer = torch.optim.Adam(model.parameters(), lr=opt['lr'])
     
@@ -148,14 +148,14 @@ def eval(val_loader, model, opt, isBatch=False, return_error=False, save=False):
             logit = model(title, desc)
             if save:
                 res[i*opt['batch_size']:i*opt['batch_size']+batch_size] = logit.data.cpu()
-                truth[i*opt['batch_size']:i*opt['batch_size']+batch_size] = label.data.cpu()
+                # truth[i*opt['batch_size']:i*opt['batch_size']+batch_size] = label.data.cpu()
             predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
             marked_label_list += [list(np.where(ii.cpu().numpy()==1)[0]) for ii in label.data]
     model.train()
 
     if save:
         torch.save(res, '{}/{}_{}_res.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
-        torch.save(truth, '{}/{}_{}_label.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
+        # torch.save(truth, '{}/{}_{}_label.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
             
     if return_error:
         sample_per_class = torch.zeros(opt['class_num'])
@@ -372,13 +372,20 @@ def test(**kwargs):
 
     model.eval()
     predict_label_list = []
+    res = torch.Tensor(217360, 1999)
     for i, batch in enumerate(test_loader, 0):
+        batch_size = batch[0].size(0)
         title, desc = batch
         title, desc = Variable(title), Variable(desc)
         if opt['cuda']:
             title, desc = title.cuda(), desc.cuda()
         logit = model(title, desc)
+        if opt['save_resmat']:
+            res[i*opt['batch_size']:i*opt['batch_size']+batch_size] = logit.data.cpu()
         predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
+
+    if opt['save_resmat']:
+        torch.save(res, '{}/{}_{}_test_res.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
 
     lines = []
     for qid, top5 in zip(test_idx, predict_label_list):

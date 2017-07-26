@@ -15,7 +15,7 @@ class HAN(nn.Module):
         embedding = torch.from_numpy(embed_mat)
         C = opt['class_num']
         dropout = opt['dropout']
-        self.hidden_num = hidden_num = 200
+        self.hidden_num = hidden_num = 1024
         
         self.embed = nn.Embedding(V, D)
         self.embed.weight.data.copy_(embedding)
@@ -39,9 +39,9 @@ class HAN(nn.Module):
         self.s_hid_fc = nn.Linear(hidden_num*2, hidden_num*2)
         self.s_atten_fc = nn.Linear(hidden_num*2, 1)
         
-        self.fc1 = nn.Linear(hidden_num*2, 256)
-        self.bn1 = nn.BatchNorm1d(256)
-        self.fc2 = nn.Linear(256, C)
+        self.fc1 = nn.Linear(hidden_num*2, 2000)
+        self.bn1 = nn.BatchNorm1d(2000)
+        self.fc2 = nn.Linear(2000, C)
         
     def forward(self, x, y):
         batch_size = x.size(0)
