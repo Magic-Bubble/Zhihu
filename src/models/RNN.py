@@ -14,7 +14,7 @@ class RNN(nn.Module):
         embedding = torch.from_numpy(embed_mat)
         C = opt['class_num']
         dropout = opt['dropout']
-        self.hidden_num = hidden_num = 200
+        self.hidden_num = hidden_num = 200#512
         
         self.embed = nn.Embedding(V, D)
         self.embed.weight.data.copy_(embedding)
@@ -30,9 +30,9 @@ class RNN(nn.Module):
         self.rnn1 = nn.GRU(512, hidden_num, bidirectional=True, batch_first=True)
         self.rnn2 = nn.GRU(512, hidden_num, bidirectional=True, batch_first=True)
         
-        self.fc1 = nn.Linear(hidden_num*4, 512)
-        self.bn1 = nn.BatchNorm1d(512)
-        self.fc2 = nn.Linear(512, C)
+        self.fc1 = nn.Linear(hidden_num*4, 512)#2000)
+        self.bn1 = nn.BatchNorm1d(512)#2000)
+        self.fc2 = nn.Linear(512, C)#2000, C)
         
     def forward(self, x, y):
         batch_size = x.size(0)

@@ -3,6 +3,7 @@ from TextCNN import TextCNN
 from RNN import RNN
 from RCNN import RCNN
 from HAN import HAN
+from Boost import Boost
 from Emsemble import Emsemble
 from TimeDistributed import TimeDistributed
 from K_MaxPooling import K_MaxPooling

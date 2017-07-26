@@ -71,10 +71,10 @@ def train(**kwargs):
     if opt['cuda']:
         model.cuda()
         
-    # import sys
-    # precision, recall, score = eval(val_loader, model, opt)
-    # print precision, recall, score
-    # sys.exit()
+    import sys
+    precision, recall, score = eval(val_loader, model, opt, save=True)
+    print precision, recall, score
+    sys.exit()
         
     optimizer = torch.optim.Adam(model.parameters(), lr=opt['lr'])
     
@@ -123,7 +123,7 @@ def train(**kwargs):
         elif epoch + base_epoch >= 5:
             break
 								
-def eval(val_loader, model, opt, isBatch=False, return_error=False):
+def eval(val_loader, model, opt, isBatch=False, return_error=False, save=False):
     model.eval()
     predict_label_list, marked_label_list = [], []
     if isBatch:
@@ -136,15 +136,26 @@ def eval(val_loader, model, opt, isBatch=False, return_error=False):
         predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
         marked_label_list += [list(np.where(ii.cpu().numpy()==1)[0]) for ii in label.data]
     else:
+        if save:
+            res = torch.Tensor(299997, 1999)
+            truth = torch.Tensor(299997, 1999)
         for i, batch in enumerate(val_loader, 0):
+            batch_size = batch[0].size(0)
             title, desc, label = batch
             title, desc, label = Variable(title), Variable(desc), Variable(label)
             if opt['cuda']:
                 title, desc, label = title.cuda(), desc.cuda(), label.cuda()
             logit = model(title, desc)
+            if save:
+                res[i*opt['batch_size']:i*opt['batch_size']+batch_size] = logit.data.cpu()
+                truth[i*opt['batch_size']:i*opt['batch_size']+batch_size] = label.data.cpu()
             predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
             marked_label_list += [list(np.where(ii.cpu().numpy()==1)[0]) for ii in label.data]
     model.train()
+
+    if save:
+        torch.save(res, '{}/{}_{}_res.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
+        torch.save(truth, '{}/{}_{}_label.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
             
     if return_error:
         sample_per_class = torch.zeros(opt['class_num'])
@@ -179,7 +190,7 @@ def eval(val_loader, model, opt, isBatch=False, return_error=False):
     score = (precision * recall) / (precision + recall)
 
     return precision, recall, score  
-								
+    
 def train_all(**kwargs):
     opt = DefaultConfig()
     opt.update(**kwargs)
@@ -222,6 +233,10 @@ def train_all(**kwargs):
         error_per_class = torch.zeros(opt['class_num'])
         sample_per_class = torch.zeros(opt['class_num'])
         loss_weight = torch.ones(opt['class_num'])
+        
+    if opt['device'] != None:
+        torch.cuda.set_device(opt['device'])    
+    
     if opt['cuda']:
         error_per_class = error_per_class.cuda()
         sample_per_class = sample_per_class.cuda()
@@ -236,9 +251,6 @@ def train_all(**kwargs):
         else:
             model = load_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
                               name=opt['load_name'])
-    
-    if opt['device'] != None:
-        torch.cuda.set_device(opt['device'])
 
     if opt['cuda']:
         model.cuda()
@@ -250,9 +262,12 @@ def train_all(**kwargs):
     model.train()
     base_folder, base_epoch = opt['base_folder'], opt['base_epoch']
     for cv_num in range(base_folder+1, opt['folder_num']+1):
-        train_dataset = Dataset(title=train_title, desc=train_desc, label=train_label, class_num=opt['class_num'], folder_num=opt['folder_num'], cv_num=cv_num, cv=False)
-        train_loader = data.DataLoader(train_dataset, shuffle=True, batch_size=opt['batch_size'])
+        if opt['folder_num'] == 1:    
+            train_dataset = Dataset(title=train_title, desc=train_desc, label=train_label, class_num=opt['class_num'])
+            train_loader = data.DataLoader(train_dataset, shuffle=True, batch_size=opt['batch_size'])
         if opt['folder_num'] > 1:
+            train_dataset = Dataset(title=train_title, desc=train_desc, label=train_label, class_num=opt['class_num'], folder_num=opt['folder_num'], cv_num=cv_num, cv=False)
+            train_loader = data.DataLoader(train_dataset, shuffle=True, batch_size=opt['batch_size'])
             val_dataset = Dataset(title=train_title, desc=train_desc, label=train_label, class_num=opt['class_num'], folder_num=opt['folder_num'], cv_num=cv_num, cv=True)
             val_loader = data.DataLoader(val_dataset, shuffle=True, batch_size=opt['batch_size'])
         for epoch in range(base_epoch+1, opt['epochs']+1):
@@ -316,16 +331,18 @@ def test(**kwargs):
     logger = Logger()
 
     logger.info('Load {} data starting...'.format('char' if opt['use_char'] else 'word'))
+    if opt['use_double_length']: prefix = '_2'
+    else: prefix = ''
     if opt['use_char']:
         opt['embed_num'] = opt['char_embed_num']
         embed_mat = np.load(opt['char_embed'])
-        test_title = np.load(opt['test_title_char'])
-        test_desc = np.load(opt['test_desc_char'])
+        test_title = np.load(opt['test_title_char'+prefix])
+        test_desc = np.load(opt['test_desc_char'+prefix])
     else:
         opt['embed_num'] = opt['word_embed_num']
         embed_mat = np.load(opt['word_embed'])
-        test_title = np.load(opt['test_title_word'])
-        test_desc = np.load(opt['test_desc_word'])
+        test_title = np.load(opt['test_title_word'+prefix])
+        test_desc = np.load(opt['test_desc_word'+prefix])
     logger.info('Load {} data finished!'.format('char' if opt['use_char'] else 'word'))
 
     test_idx = np.load(opt['test_idx'])
@@ -356,14 +373,10 @@ def test(**kwargs):
     model.eval()
     predict_label_list = []
     for i, batch in enumerate(test_loader, 0):
-        # text = batch
-        # text = Variable(text)
         title, desc = batch
         title, desc = Variable(title), Variable(desc)
         if opt['cuda']:
-            # text = text.cuda()
             title, desc = title.cuda(), desc.cuda()
-        # logit = model(text)
         logit = model(title, desc)
         predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
 

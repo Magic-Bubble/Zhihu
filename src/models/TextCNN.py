@@ -38,9 +38,9 @@ class TextCNN(nn.Module):
         
         self.kmax_pooling = K_MaxPooling(kmax)
 
-        self.fc1 = nn.Linear((len(Ks1)+len(Ks2))*Co, 512)
-        self.bn1 = nn.BatchNorm1d(512)
-        self.fc2 = nn.Linear(512, C)
+        self.fc1 = nn.Linear((len(Ks1)+len(Ks2))*Co, 2048)
+        self.bn1 = nn.BatchNorm1d(2048)
+        self.fc2 = nn.Linear(2048, C)
         
     def forward(self, x, y):
         batch_size = x.size(0)
