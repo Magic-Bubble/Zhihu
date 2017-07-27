@@ -15,7 +15,7 @@ class HAN(nn.Module):
         embedding = torch.from_numpy(embed_mat)
         C = opt['class_num']
         dropout = opt['dropout']
-        self.hidden_num = hidden_num = 1024
+        self.hidden_num = hidden_num = 512
         
         self.embed = nn.Embedding(V, D)
         self.embed.weight.data.copy_(embedding)
@@ -35,11 +35,11 @@ class HAN(nn.Module):
         self.w_atten_fc1 = nn.Linear(hidden_num*2, 1)
         self.w_atten_fc2 = nn.Linear(hidden_num*2, 1)
         
-        self.s_rnn = nn.GRU(hidden_num*2, hidden_num, bidirectional=True, batch_first=True)
-        self.s_hid_fc = nn.Linear(hidden_num*2, hidden_num*2)
-        self.s_atten_fc = nn.Linear(hidden_num*2, 1)
+        self.s_rnn = nn.GRU(hidden_num*2, hidden_num*2, bidirectional=True, batch_first=True)
+        self.s_hid_fc = nn.Linear(hidden_num*4, hidden_num*4)
+        self.s_atten_fc = nn.Linear(hidden_num*4, 1)
         
-        self.fc1 = nn.Linear(hidden_num*2, 2000)
+        self.fc1 = nn.Linear(hidden_num*4, 2000)
         self.bn1 = nn.BatchNorm1d(2000)
         self.fc2 = nn.Linear(2000, C)
         
@@ -77,7 +77,7 @@ class HAN(nn.Module):
         y = y.sum(1)
         
         x = torch.cat((x, y), 1)
-        h0 = Variable(torch.randn(2, batch_size, self.hidden_num))
+        h0 = Variable(torch.randn(2, batch_size, self.hidden_num*2))
         if self.opt['cuda']:
             h0 = h0.cuda()
         o, _ = self.s_rnn(x, h0)

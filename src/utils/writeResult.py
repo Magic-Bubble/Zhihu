@@ -2,7 +2,7 @@ import os
 import sys
 
 def write_result(lines, **kwargs):
-	load_dir = '{}/{}'.format(kwargs['model_dir'], kwargs['model_name'])
+	load_dir = '{}/{}'.format(kwargs.get('model_dir', 'results'), kwargs['model_name'])
 	name = kwargs.get('name', None)
 	if name is None:		
 		checkpoints = '{}/checkpoints'.format(load_dir)

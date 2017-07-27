@@ -138,7 +138,7 @@ def eval(val_loader, model, opt, isBatch=False, return_error=False, save=False):
     else:
         if save:
             res = torch.Tensor(299997, 1999)
-            truth = torch.Tensor(299997, 1999)
+            #truth = torch.Tensor(299997, 1999)
         for i, batch in enumerate(val_loader, 0):
             batch_size = batch[0].size(0)
             title, desc, label = batch
@@ -148,14 +148,14 @@ def eval(val_loader, model, opt, isBatch=False, return_error=False, save=False):
             logit = model(title, desc)
             if save:
                 res[i*opt['batch_size']:i*opt['batch_size']+batch_size] = logit.data.cpu()
-                # truth[i*opt['batch_size']:i*opt['batch_size']+batch_size] = label.data.cpu()
+                #truth[i*opt['batch_size']:i*opt['batch_size']+batch_size] = label.data.cpu()
             predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
             marked_label_list += [list(np.where(ii.cpu().numpy()==1)[0]) for ii in label.data]
     model.train()
 
     if save:
         torch.save(res, '{}/{}_{}_res.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
-        # torch.save(truth, '{}/{}_{}_label.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
+        #torch.save(truth, '{}/{}_{}_label.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
             
     if return_error:
         sample_per_class = torch.zeros(opt['class_num'])
@@ -386,6 +386,7 @@ def test(**kwargs):
 
     if opt['save_resmat']:
         torch.save(res, '{}/{}_{}_test_res.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
+	return
 
     lines = []
     for qid, top5 in zip(test_idx, predict_label_list):

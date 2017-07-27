@@ -14,7 +14,7 @@ class TextCNN(nn.Module):
         embedding = torch.from_numpy(embed_mat)
         C = opt['class_num']
         Ci = 1
-        Co = 100#opt['kernel_num']
+        Co = opt['kernel_num']
         Ks = opt['kernel_sizes']
         Ks1 = [1,2,3,4,5]
         Ks2 = [3,4,5,6,7]
@@ -38,9 +38,9 @@ class TextCNN(nn.Module):
         
         self.kmax_pooling = K_MaxPooling(kmax)
 
-        self.fc1 = nn.Linear((len(Ks1)+len(Ks2))*Co, 512)#4096)
-        self.bn1 = nn.BatchNorm1d(512)#4096)
-        self.fc2 = nn.Linear(512, C)#4096, C)
+        self.fc1 = nn.Linear((len(Ks1)+len(Ks2))*Co, 4096)
+        self.bn1 = nn.BatchNorm1d(4096)
+        self.fc2 = nn.Linear(4096, C)
         
     def forward(self, x, y):
         batch_size = x.size(0)
