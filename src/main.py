@@ -10,7 +10,7 @@ import datetime
 from config import DefaultConfig
 from dataset import Dataset
 import models
-from utils import load_model, save_model, Visualizer, Logger, write_result
+from utils import load_model, save_model, Visualizer, Logger, write_result, get_loss_weight
 
 def train(**kwargs):
     opt = DefaultConfig()
@@ -52,11 +52,20 @@ def train(**kwargs):
     model = Model(embed_mat, opt)
     print model
 
+    loss_weight = torch.ones(opt['class_num'])
+    if opt['boost']:
+        if opt['base_layer'] != 0:
+            cal_res = torch.load('{}/{}/layer_{}_cal_res_{}.pt'.format(opt['model_dir'], opt['model'], opt['base_layer'], 'which time'), map_location=lambda storage, loc: storage)
+            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_{}.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1, 'which time'), map_location=lambda storage, loc: storage)
+        else:
+            cal_res = torch.zeros(299997, opt['class_num'])
+        print 'cur_layer:', opt['base_layer'] + 1, \
+              'loss_weight:', loss_weight.mean(), loss_weight.max(), loss_weight.min(), loss_weight.std()
+
     if opt['use_self_loss']:
         Loss = getattr(models, opt['loss_function'])
     else:
         Loss = getattr(nn, opt['loss_function'])
-    loss_function = Loss()
     
     if opt['load']:
         if opt.get('load_name', None) is None:
@@ -64,18 +73,20 @@ def train(**kwargs):
         else:
             model = load_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
                               name=opt['load_name'])
-    
+
     if opt['device'] != None:
         torch.cuda.set_device(opt['device'])
 
     if opt['cuda']:
         model.cuda()
+        loss_weight.cuda()
         
-    #import sys
-    #precision, recall, score = eval(val_loader, model, opt, save=True)
-    #print precision, recall, score
-    #sys.exit()
+    import sys
+    precision, recall, score = eval(val_loader, model, opt, save_res=True)
+    print precision, recall, score
+    sys.exit()
         
+    loss_function = Loss(weight=loss_weight)
     optimizer = torch.optim.Adam(model.parameters(), lr=opt['lr'])
     
     logger.info('Start running...')
@@ -121,9 +132,15 @@ def train(**kwargs):
             for param_group in optimizer.param_groups:
                 param_group['lr'] = opt['lr']*opt['lr_decay']
         elif epoch + base_epoch >= 5:
+            if opt['boost']:
+                res, truth = eval(val_loader, model, opt, return_res=True)
+                cal_res += res * loss_weight
+                loss_weight = get_loss_weight(cal_res, truth)
+                torch.save(cal_res, '{}/{}/layer_{}_cal_res_{}.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1, datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
+                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_{}.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2, datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
             break
 								
-def eval(val_loader, model, opt, isBatch=False, return_error=False, save=False):
+def eval(val_loader, model, opt, isBatch=False, return_err=False, save_res=False, return_res=False):
     model.eval()
     predict_label_list, marked_label_list = [], []
     if isBatch:
@@ -136,9 +153,9 @@ def eval(val_loader, model, opt, isBatch=False, return_error=False, save=False):
         predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
         marked_label_list += [list(np.where(ii.cpu().numpy()==1)[0]) for ii in label.data]
     else:
-        if save:
-            res = torch.Tensor(299997, 1999)
-            #truth = torch.Tensor(299997, 1999)
+        if save_res or return_res:
+            res = torch.Tensor(299997, opt['class_num'])
+            truth = torch.Tensor(299997, opt['class_num'])
         for i, batch in enumerate(val_loader, 0):
             batch_size = batch[0].size(0)
             title, desc, label = batch
@@ -146,18 +163,21 @@ def eval(val_loader, model, opt, isBatch=False, return_error=False, save=False):
             if opt['cuda']:
                 title, desc, label = title.cuda(), desc.cuda(), label.cuda()
             logit = model(title, desc)
-            if save:
+            if save_res or return_res:
                 res[i*opt['batch_size']:i*opt['batch_size']+batch_size] = logit.data.cpu()
-                #truth[i*opt['batch_size']:i*opt['batch_size']+batch_size] = label.data.cpu()
+                truth[i*opt['batch_size']:i*opt['batch_size']+batch_size] = label.data.cpu()
             predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
             marked_label_list += [list(np.where(ii.cpu().numpy()==1)[0]) for ii in label.data]
     model.train()
 
-    if save:
+    if save_res:
         torch.save(res, '{}/{}_{}_res.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
         #torch.save(truth, '{}/{}_{}_label.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
+
+    if return_res:
+        return res, truth
             
-    if return_error:
+    if return_err:
         sample_per_class = torch.zeros(opt['class_num'])
         error_per_class = torch.zeros(opt['class_num'])
         if opt['cuda']:
@@ -226,13 +246,21 @@ def train_all(**kwargs):
         Loss = getattr(nn, opt['loss_function'])
 
     if opt['load_loss_weight']:
-        error_per_class = torch.load('{}/{}/folder_{}_error_per_class.pt'.format(opt['model_dir'], opt['model'], opt['base_folder']), map_location=lambda storage, loc: storage)
-        sample_per_class = torch.load('{}/{}/folder_{}_sample_per_class.pt'.format(opt['model_dir'], opt['model'], opt['base_folder']), map_location=lambda storage, loc: storage)
+        error_per_class = torch.load('{}/{}/folder_{}_error_per_class_{}.pt'.format(opt['model_dir'], opt['model'], opt['base_folder'], 'which time'), map_location=lambda storage, loc: storage)
+        sample_per_class = torch.load('{}/{}/folder_{}_sample_per_class_{}.pt'.format(opt['model_dir'], opt['model'], opt['base_folder'], 'which time'), map_location=lambda storage, loc: storage)
         loss_weight = error_per_class / sample_per_class * 2
     else:
         error_per_class = torch.zeros(opt['class_num'])
         sample_per_class = torch.zeros(opt['class_num'])
         loss_weight = torch.ones(opt['class_num'])
+
+    # loss_weight = torch.ones(opt['class_num'])
+    # if opt['boost']:
+    #     if opt['base_layer'] != 0:
+    #         cal_res = torch.load('{}/{}/layer_{}_cal_res_{}.pt'.format(opt['model_dir'], opt['model'], opt['base_layer'], 'which time'), map_location=lambda storage, loc: storage)
+    #         loss_weight = torch.load('{}/{}/layer_{}_loss_weight_{}.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1, 'which time'), map_location=lambda storage, loc: storage)
+    #     else:
+    #         cal_res = torch.zeros(299997, opt['class_num'])
         
     if opt['device'] != None:
         torch.cuda.set_device(opt['device'])    
@@ -241,7 +269,9 @@ def train_all(**kwargs):
         error_per_class = error_per_class.cuda()
         sample_per_class = sample_per_class.cuda()
         loss_weight = loss_weight.cuda()
+
     loss_function = Loss(weight=loss_weight)
+    # loss_function = Loss(weight=loss_weight)
     
     print loss_weight
     
@@ -308,12 +338,20 @@ def train_all(**kwargs):
                 model.opt['static'] = False
             elif epoch == 4:
                 optimizer = torch.optim.Adam(model.parameters(), lr=opt['lr']*opt['lr_decay'])
+            elif epoch >= 5:
+                # if opt['boost']:
+                #     res, truth = eval(val_loader, model, opt, return_res=True)
+                #     cal_res += res * loss_weight
+                #     loss_weight = get_loss_weight(cal_res, truth)
+                #     torch.save(cal_res, '{}/{}/layer_{}_cal_res_{}.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1, datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
+                #     torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_{}.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2, datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
+                break
         logger.info('Training folder {} finished!'.format(cv_num))
-        error_per_class_tmp, sample_per_class_tmp = eval(val_loader, model, opt, return_error=True)
+        error_per_class_tmp, sample_per_class_tmp = eval(val_loader, model, opt, return_err=True)
         error_per_class += error_per_class_tmp
         sample_per_class += sample_per_class_tmp
-        torch.save(error_per_class, '{}/{}/folder_{}_error_per_class.pt'.format(opt['model_dir'], opt['model'], cv_num))
-        torch.save(sample_per_class, '{}/{}/folder_{}_sample_per_class.pt'.format(opt['model_dir'], opt['model'], cv_num))
+        torch.save(error_per_class, '{}/{}/folder_{}_error_per_class_{}.pt'.format(opt['model_dir'], opt['model'], cv_num, datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
+        torch.save(sample_per_class, '{}/{}/folder_{}_sample_per_class_{}.pt'.format(opt['model_dir'], opt['model'], cv_num, datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
         loss_weight = error_per_class / sample_per_class * 2
         base_epoch = 0
         opt['static'] = True

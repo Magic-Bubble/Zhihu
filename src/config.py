@@ -29,24 +29,17 @@ class DefaultConfig(dict):
 		self['val_desc_char_2'] = self['val_dir'] + 'val_desc_char_indices_2.npy'
 		self['val_desc_word_2'] = self['val_dir'] + 'val_desc_word_indices_2.npy'
 
-		self['train_all_dir'] = self['data_dir'] + 'train_all/'
-		self['train_title_char_all'] = self['train_all_dir'] + 'train_title_char_indices_all.npy'
-		self['train_title_word_all'] = self['train_all_dir'] + 'train_title_word_indices_all.npy'
-		self['train_desc_char_all'] = self['train_all_dir'] + 'train_desc_char_indices_all.npy'
-		self['train_desc_word_all'] = self['train_all_dir'] + 'train_desc_word_indices_all.npy'
-		self['train_label_all'] = self['train_all_dir'] + 'train_label_indices_all.npy'
+		self['train_all_dir'] = self['data_dir'] + 'train/'#_all/'
+		self['train_title_char_all'] = self['train_all_dir'] + 'train_title_char_indices.npy'#_all.npy'
+		self['train_title_word_all'] = self['train_all_dir'] + 'train_title_word_indices.npy'#_all.npy'
+		self['train_desc_char_all'] = self['train_all_dir'] + 'train_desc_char_indices.npy'#_all.npy'
+		self['train_desc_word_all'] = self['train_all_dir'] + 'train_desc_word_indices.npy'#_all.npy'
+		self['train_label_all'] = self['train_all_dir'] + 'train_label_indices.npy'#_all.npy'
 
-		self['train_title_char_all_2'] = self['train_all_dir'] + 'train_title_char_indices_all_2.npy'
-		self['train_title_word_all_2'] = self['train_all_dir'] + 'train_title_word_indices_all_2.npy'
-		self['train_desc_char_all_2'] = self['train_all_dir'] + 'train_desc_char_indices_all_2.npy'
-		self['train_desc_word_all_2'] = self['train_all_dir'] + 'train_desc_word_indices_all_2.npy'
-
-		self['train_all_dir'] = self['data_dir'] + 'train/'
-		self['train_title_char_all'] = self['train_all_dir'] + 'train_title_char_indices.npy'
-		self['train_title_word_all'] = self['train_all_dir'] + 'train_title_word_indices.npy'
-		self['train_desc_char_all'] = self['train_all_dir'] + 'train_desc_char_indices.npy'
-		self['train_desc_word_all'] = self['train_all_dir'] + 'train_desc_word_indices.npy'
-		# self['train_label_all'] = self['train_all_dir'] + 'train_label_indices.npy'
+		self['train_title_char_all_2'] = self['train_all_dir'] + 'train_title_char_indices_2.npy'#all_2.npy'
+		self['train_title_word_all_2'] = self['train_all_dir'] + 'train_title_word_indices_2.npy'#all_2.npy'
+		self['train_desc_char_all_2'] = self['train_all_dir'] + 'train_desc_char_indices_2.npy'#all_2.npy'
+		self['train_desc_word_all_2'] = self['train_all_dir'] + 'train_desc_word_indices_2.npy'#all_2.npy'
 
 		self['test_dir'] = self['data_dir'] + 'test/'
 		self['test_idx'] = self['test_dir'] + 'test_idx.npy'
@@ -98,6 +91,8 @@ class DefaultConfig(dict):
 		self['device'] = 0
 		self['cuda'] = True
 		self['threshold'] = 0.5
+		self['boost'] = True
+		self['base_layer'] = 0
 
 		self['result_dir'] = 'results'
         

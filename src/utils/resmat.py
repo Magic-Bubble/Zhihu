@@ -3,15 +3,16 @@ import numpy as np
 from writeResult import write_result
 
 def emsemble_eval():
-    result_dir = '/home/dyj/'
+    result_dir = '../results/'
     label = torch.load(result_dir + 'label.pt')
-    cnn1 = torch.load(result_dir + 'TextCNN_2017-07-27#10:15:20_res.pt')
-    cnn2 = torch.load(result_dir + 'TextCNN_2017-07-27#10:32:21_res.pt')
-    rnn1 = torch.load(result_dir + 'RNN_2017-07-27#10:48:05_res.pt')
-    rnn2 = torch.load(result_dir + 'RNN_2017-07-27#10:41:03_res.pt')
-    rcnn1 = torch.load(result_dir + 'RCNN_2017-07-27#11:01:07_res.pt')
+    cnn1 = torch.load(result_dir + 'TextCNN1_2017-07-27#10:15:20_res.pt')
+    cnn2 = torch.load(result_dir + 'TextCNN2_2017-07-27#10:32:21_res.pt')
+    rnn1 = torch.load(result_dir + 'RNN1_2017-07-27#10:48:05_res.pt')
+    rnn2 = torch.load(result_dir + 'RNN2_2017-07-27#10:41:03_res.pt')
+    rcnn1 = torch.load(result_dir + 'RCNN1_2017-07-27#11:01:07_res.pt')
     rcnncha = torch.load(result_dir + 'RCNNcha_2017-07-27#16:19:23_res.pt')
-    logit = (cnn1 + rnn1 + rcnn1 + rcnncha) / 4 + (cnn2 + rnn2) / 2
+    fasttext4 = torch.load(result_dir + 'Boost_2017-07-28#15:14:47_res.pt')
+    logit = (cnn1 + rnn1 + rcnn1 + rcnncha) / 4 + (cnn2 + rnn2) / 2 + fasttext4 / 4
     print get_score(logit, label)
     
 def emsemble_test():
@@ -25,7 +26,8 @@ def emsemble_test():
     rnn2 = torch.load(result_dir + 'RNN2_2017-07-27#11:33:24_test_res.pt')
     rcnn1 = torch.load(result_dir + 'RCNN1_2017-07-27#11:30:42_test_res.pt')
     rcnncha = torch.load(result_dir + 'RCNNcha_2017-07-27#16:00:33_test_res.pt')
-    logit = (cnn1 + rnn1 + rcnn1 + rcnncha) / 4 + (cnn2 + rnn2) / 2
+    fasttext4 = torch.load(result_dir + 'FastText4__test_res.pt')
+    logit = (cnn1 + rnn1 + rcnn1 + rcnncha) / 4 + (cnn2 + rnn2) / 2 + fasttext4 / 4
     predict_label_list = [list(ii) for ii in logit.topk(5, 1)[1]]
     lines = []
     for qid, top5 in zip(test_idx, predict_label_list):
@@ -59,6 +61,19 @@ def get_score(logit, label):
 
     return precision, recall, score
 
+def get_loss_weight(logit, label):
+    class_num = logit.size(1)
+    predict_label_list = [list(ii) for ii in logit.topk(5, 1)[1]]
+    marked_label_list = [list(np.where(ii.numpy()==1)[0]) for ii in label]
+    sample_per_class = torch.zeros(class_num)
+    error_per_class = torch.zeros(class_num)
+    for predict_labels, marked_labels in zip(predict_label_list, marked_label_list):
+        for true_label in marked_labels:
+            sample_per_class[true_label] += 1
+            if true_label not in predict_labels:
+                error_per_class[true_label] += 1
+    return error_per_class / sample_per_class
+
 if __name__ == '__main__':
-   #emsemble_eval() 
-   emsemble_test() 
+   emsemble_eval() 
+   # emsemble_test() 
