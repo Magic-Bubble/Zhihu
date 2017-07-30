@@ -5,6 +5,7 @@ from RCNN import RCNN
 from HAN import HAN
 from Boost import Boost
 from Emsemble import Emsemble
+from Stack import Stack
 from TimeDistributed import TimeDistributed
 from K_MaxPooling import K_MaxPooling
 from PairDistanceLoss import PairDistanceLoss

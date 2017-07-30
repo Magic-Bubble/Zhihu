@@ -64,6 +64,8 @@ class DefaultConfig(dict):
 		self['word_embed_num'] = 411722
 		self['char_embed_num'] = 11975
 		self['embed_dim'] = 256
+		self['val_num'] = 299997
+		self['test_num'] = 217360
         
 		self['kernel_num'] = 512
 		self['kernel_sizes'] = [1,2,3,4,5]
@@ -91,10 +93,10 @@ class DefaultConfig(dict):
 		self['device'] = 0
 		self['cuda'] = True
 		self['threshold'] = 0.5
-		self['boost'] = True
+		self['boost'] = False
 		self['base_layer'] = 0
 
-		self['result_dir'] = 'results'
+		self['result_dir'] = result_dir = 'results'
         
     def update(self, **args):
         for key in args:
