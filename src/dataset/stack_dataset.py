@@ -1,11 +1,12 @@
 import numpy as np
 import torch
 import torch.nn as nn
+#from utils import normalize
 
 class Stack_Dataset:
     def __init__(self, **datas):
         self.test = datas.get('test', False)
-        self.resmat = [torch.load(ii) for ii in datas['resmat']]
+        self.resmat = [torch.load(ii)/n for ii, n in datas['resmat']]
         self.stack_num = len(self.resmat)
         # train=True, return label
         if self.test is False:

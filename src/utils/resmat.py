@@ -7,31 +7,36 @@ from torch.autograd import Variable
 def emsemble_eval():
     result_dir = '/home/dyj/'
     label = torch.load(result_dir + 'label.pt')
-    cnn1 = normalize(torch.load(result_dir + 'TextCNN_2017-07-27#10:15:20_res.pt'))
-    cnn2 = normalize(torch.load(result_dir + 'TextCNN_2017-07-27#10:32:21_res.pt'))
-    rnn1 = normalize(torch.load(result_dir + 'RNN_2017-07-27#10:48:05_res.pt'))
-    rnn2 = normalize(torch.load(result_dir + 'RNN_2017-07-27#10:41:03_res.pt'))
-    rcnn1 = normalize(torch.load(result_dir + 'RCNN_2017-07-27#11:01:07_res.pt'))
-    rcnncha = normalize(torch.load(result_dir + 'RCNNcha_2017-07-27#16:19:23_res.pt'))
-    fasttext4 = normalize(torch.load(result_dir + 'FastText4_2017-07-28#15:14:47_res.pt'))
-    fasttext1 = normalize(torch.load(result_dir + 'FastText1_2017-07-29#10:31:43_res.pt'))
-    logit = (cnn1 + rnn1 + rcnn1 + rcnncha + fasttext1) / 4 + (cnn2 + rnn2) / 2 + fasttext4 / 4
+    cnn1 = torch.load(result_dir + 'TextCNN1_2017-07-27#10:15:20_res.pt')
+    cnn2 = torch.load(result_dir + 'TextCNN2_2017-07-27#10:32:21_res.pt')
+    rnn1 = torch.load(result_dir + 'RNN1_2017-07-27#10:48:05_res.pt')
+    rnn2 = torch.load(result_dir + 'RNN2_2017-07-27#10:41:03_res.pt')
+    rcnn1 = torch.load(result_dir + 'RCNN1_2017-07-27#11:01:07_res.pt')
+    rcnncha = torch.load(result_dir + 'RCNNcha_2017-07-27#16:19:23_res.pt')
+    fasttext4 = torch.load(result_dir + 'FastText4_2017-07-28#15:14:47_res.pt')
+    fasttext1 = torch.load(result_dir + 'FastText1_2017-07-29#10:31:43_res.pt')
+    fasttext7 = torch.load(result_dir + 'FastText7_2017-07-30#21:07:18_res.pt')
+    rnn3 = torch.load(result_dir + 'RNN3_2017-07-31#07:07:41_res.pt')
+    rnn4 = torch.load(result_dir + 'RNN4_2017-07-31#12:53:56_res.pt')
+    logit = (cnn1 + rnn1 + rcnn1 + rcnncha + fasttext1) / 4 + (cnn2 + rnn2) / 2 + fasttext4 / 4 + fasttext7 / 7 + rnn3 / 3
     print get_score(logit, label)
     
 def emsemble_test():
     test_idx = np.load('../../data_preprocess/test/test_idx.npy')
     topic_idx = np.load('../../data_preprocess/topic/topic_idx.npy')
     
-    result_dir = '../results/'
-    cnn1 = normalize(torch.load(result_dir + 'TextCNN1_2017-07-27#12:30:16_test_res.pt'))
-    cnn2 = normalize(torch.load(result_dir + 'TextCNN2_2017-07-27#12:22:42_test_res.pt'))
-    rnn1 = normalize(torch.load(result_dir + 'RNN1_2017-07-27#12:35:51_test_res.pt'))
-    rnn2 = normalize(torch.load(result_dir + 'RNN2_2017-07-27#11:33:24_test_res.pt'))
-    rcnn1 = normalize(torch.load(result_dir + 'RCNN1_2017-07-27#11:30:42_test_res.pt'))
-    rcnncha = normalize(torch.load(result_dir + 'RCNNcha_2017-07-27#16:00:33_test_res.pt'))
-    fasttext1 = normalize(torch.load(result_dir + 'FastText1_2017-07-29#10:47:46_test_res.pt'))
-    fasttext4 = normalize(torch.load(result_dir + 'FastText4_2017-07-28#17:20:21_test_res.pt'))
-    logit = (cnn1 + rnn1 + rcnn1 + rcnncha + fasttext1) / 4 + (cnn2 + rnn2) / 2 + fasttext4 / 4
+    result_dir = '/home/dyj/'
+    cnn1 = torch.load(result_dir + 'TextCNN1_2017-07-27#12:30:16_test_res.pt')
+    cnn2 = torch.load(result_dir + 'TextCNN2_2017-07-27#12:22:42_test_res.pt')
+    rnn1 = torch.load(result_dir + 'RNN1_2017-07-27#12:35:51_test_res.pt')
+    rnn2 = torch.load(result_dir + 'RNN2_2017-07-27#11:33:24_test_res.pt')
+    rcnn1 = torch.load(result_dir + 'RCNN1_2017-07-27#11:30:42_test_res.pt')
+    rcnncha = torch.load(result_dir + 'RCNNcha_2017-07-27#16:00:33_test_res.pt')
+    fasttext4 = torch.load(result_dir + 'FastText4_2017-07-28#17:20:21_test_res.pt')
+    fasttext1 = torch.load(result_dir + 'FastText1_2017-07-29#10:47:46_test_res.pt')
+    fasttext7 = torch.load(result_dir + 'FastText7_2017-07-31#09:52:37_test_res.pt')
+    rnn5 = torch.load(result_dir + 'RNN5_2017-07-31#19:18:53_test_res.pt')
+    logit = sigmoid(cnn1) * 0.0610 + sigmoid(cnn2) * 0.1218 + sigmoid(rnn1) * 0.0727 + sigmoid(rnn2) * 0.0594 + sigmoid(rcnn1) * 0.0515 + sigmoid(rcnncha) * 0.0613 + sigmoid(fasttext4/4) * 0.0295 + sigmoid(fasttext1) * 0.0398 + sigmoid(fasttext7/7) * 0.0875 + sigmoid(rnn5/5) * 0.3186
     predict_label_list = [list(ii) for ii in logit.topk(5, 1)[1]]
     lines = []
     for qid, top5 in zip(test_idx, predict_label_list):
@@ -79,9 +84,12 @@ def get_loss_weight(logit, label):
     return error_per_class / sample_per_class
 
 def normalize(logit):
-    logit = F.sigmoid(Variable(logit)).data
-    logit = torch.from_numpy(logit.numpy() / logit.numpy().sum(1).reshape(-1, 1))
+    logit = torch.sigmoid(logit)
+    logit = logit / logit.sum(1).expand_as(logit)
     return logit
+
+def sigmoid(logit):
+    return torch.sigmoid(logit)
 
 if __name__ == '__main__':
    # emsemble_eval() 
