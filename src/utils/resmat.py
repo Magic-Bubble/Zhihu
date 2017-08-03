@@ -26,17 +26,24 @@ def emsemble_test():
     topic_idx = np.load('../../data_preprocess/topic/topic_idx.npy')
     
     result_dir = '/home/dyj/'
-    cnn1 = torch.load(result_dir + 'TextCNN1_2017-07-27#12:30:16_test_res.pt')
-    cnn2 = torch.load(result_dir + 'TextCNN2_2017-07-27#12:22:42_test_res.pt')
-    rnn1 = torch.load(result_dir + 'RNN1_2017-07-27#12:35:51_test_res.pt')
-    rnn2 = torch.load(result_dir + 'RNN2_2017-07-27#11:33:24_test_res.pt')
-    rcnn1 = torch.load(result_dir + 'RCNN1_2017-07-27#11:30:42_test_res.pt')
-    rcnncha = torch.load(result_dir + 'RCNNcha_2017-07-27#16:00:33_test_res.pt')
-    fasttext4 = torch.load(result_dir + 'FastText4_2017-07-28#17:20:21_test_res.pt')
-    fasttext1 = torch.load(result_dir + 'FastText1_2017-07-29#10:47:46_test_res.pt')
-    fasttext7 = torch.load(result_dir + 'FastText7_2017-07-31#09:52:37_test_res.pt')
-    rnn5 = torch.load(result_dir + 'RNN5_2017-07-31#19:18:53_test_res.pt')
-    logit = sigmoid(cnn1) * 0.0610 + sigmoid(cnn2) * 0.1218 + sigmoid(rnn1) * 0.0727 + sigmoid(rnn2) * 0.0594 + sigmoid(rcnn1) * 0.0515 + sigmoid(rcnncha) * 0.0613 + sigmoid(fasttext4/4) * 0.0295 + sigmoid(fasttext1) * 0.0398 + sigmoid(fasttext7/7) * 0.0875 + sigmoid(rnn5/5) * 0.3186
+    # cnn1 = torch.load(result_dir + 'TextCNN1_2017-07-27#12:30:16_test_res.pt')
+    # cnn1_loss_weight = torch.load(result_dir + 'TextCNN1_loss_weight.pt')
+    # rnn1 = torch.load(result_dir+'RNN1_2017-07-27#12:35:51_test_res.pt')
+    # rnn1_loss_weight = torch.load(result_dir + 'RNN1_loss_weight.pt')
+    # rcnn1 = torch.load(result_dir + 'RCNN1_2017-07-27#11:30:42_test_res.pt')
+    # rcnn1_loss_weight = torch.load(result_dir + 'RCNN1_loss_weight.pt')
+    # rcnncha = torch.load(result_dir + 'RCNNcha_2017-07-27#16:00:33_test_res.pt')
+    # rcnncha_loss_weight = torch.load(result_dir + 'RCNNcha_loss_weight.pt')
+    # fasttext4 = torch.load(result_dir + 'FastText4_2017-07-28#17:20:21_test_res.pt')
+    # fasttext4_loss_weight = torch.load(result_dir + 'FastText4_loss_weight.pt')
+    fasttext10 = torch.load(result_dir + 'FastText10_test_res.pt')
+    fasttext10_loss_weight = torch.load(result_dir + 'FastText10_loss_weight.pt')
+    rnn10 = torch.load(result_dir + 'RNN10_test_res.pt')
+    rnn10_loss_weight = torch.load(result_dir + 'RNN10_loss_weight.pt')
+    cnn3 = torch.load(result_dir + 'TextCNN3_test_res.pt')
+    cnn3_loss_weight = torch.load(result_dir + 'TextCNN3_loss_weight.pt')
+    cnn7 = torch.from_numpy(np.load('/home/cuidesheng/ncnnp7.npy')).float()
+    logit = sigmoid(rnn10/10) * torch.sqrt(1-rnn10_loss_weight+rnn10_loss_weight.mean()).expand_as(rnn10) * 0.5692 + sigmoid(fasttext10/10) * torch.sqrt(1-fasttext10_loss_weight+fasttext10_loss_weight.mean()).expand_as(fasttext10) * 0.1507 + sigmoid(cnn3/3) * torch.sqrt(1-cnn3_loss_weight+cnn3_loss_weight.mean()).expand_as(cnn3) * 0.1795 + cnn7/7 * 0.2
     predict_label_list = [list(ii) for ii in logit.topk(5, 1)[1]]
     lines = []
     for qid, top5 in zip(test_idx, predict_label_list):
@@ -91,6 +98,59 @@ def normalize(logit):
 def sigmoid(logit):
     return torch.sigmoid(logit)
 
+def search_class_weight(logit, label, init, iter_num, step, save_name):
+    '''
+        logit: n * class_num
+    '''
+    class_num = logit.size(1)
+    print get_score(logit, label)
+    best_weight = init
+    best_score = get_score(logit * best_weight.expand_as(logit), label)[2]
+    print 'init', best_score
+    for i in range(iter_num):
+        for j in range(class_num):
+            cur_weight = best_weight.clone()
+            cur_weight[j] += step
+            cur_score = get_score(logit * cur_weight.expand_as(logit), label)[2]
+            if cur_score > best_score:
+                best_weight = cur_weight.clone()
+                best_score = cur_score
+                torch.save(best_weight, save_name)
+                print i, j, best_score
+            cur_weight[j] -= 2*step
+            cur_score = get_score(logit * cur_weight.expand_as(logit), label)[2]
+            if cur_score > best_score:
+                best_weight = cur_weight.clone()
+                best_score = cur_score
+                torch.save(best_weight, save_name)
+                print i, j, best_score
+                
+def search_model_weight(logit, label, init, iter_num, step, save_name):
+    '''
+        logit: n * class_num * model_num
+    '''
+    class_num = logit.size(1)
+    model_num = logit.size(2)
+    best_weight = init
+    best_score = get_score(torch.mm(logit.view(-1, model_num), best_weight.unsqueeze(1)).squeeze(1).view(-1, class_num), label)[2]
+    print 'init', best_score
+    for i in range(iter_num):
+        for j in range(model_num):
+            cur_weight = best_weight.clone()
+            cur_weight[j] += step
+            cur_score = get_score(torch.mm(logit.view(-1, model_num), cur_weight.unsqueeze(1)).squeeze(1).view(-1, class_num), label)[2]
+            if cur_score > best_score:
+                best_weight = cur_weight.clone()
+                best_score = cur_score
+                torch.save(best_weight, save_name)
+                print i, j, best_score
+            cur_weight[j] -= 2*step
+            cur_score = get_score(torch.mm(logit.view(-1, model_num), cur_weight.unsqueeze(1)).squeeze(1).view(-1, class_num), label)[2]
+            if cur_score > best_score:
+                best_weight = cur_weight.clone()
+                best_score = cur_score
+                torch.save(best_weight, save_name)
+                print i, j, best_score
+                
 if __name__ == '__main__':
-   # emsemble_eval() 
-   emsemble_test() 
+    emsemble_test()

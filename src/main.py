@@ -75,7 +75,7 @@ def train(**kwargs):
             model = load_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
                               name=opt['load_name'])
 
-    if opt['device'] != None:
+    if opt['cuda'] and opt['device'] != None:
         torch.cuda.set_device(opt['device'])
 
     if opt['cuda']:
@@ -299,18 +299,15 @@ def train_stack(**kwargs):
     logger = Logger()
     				
     result_dir = '/home/dyj/'
-    resmat = [(result_dir+'TextCNN1_2017-07-27#10:15:20_res.pt', 1), \
-              (result_dir+'TextCNN2_2017-07-27#10:32:21_res.pt', 1),\
-              (result_dir+'RNN1_2017-07-27#10:48:05_res.pt', 1),\
-              (result_dir+'RNN2_2017-07-27#10:41:03_res.pt', 1),\
-              (result_dir+'RCNN1_2017-07-27#11:01:07_res.pt', 1),\
-              (result_dir+'RCNNcha_2017-07-27#16:19:23_res.pt', 1),\
-              (result_dir+'FastText4_2017-07-28#15:14:47_res.pt', 4),\
-              (result_dir+'FastText1_2017-07-29#10:31:43_res.pt', 1),\
-              (result_dir+'FastText7_2017-07-30#21:07:18_res.pt', 7),\
-              #(result_dir+'RNN3_2017-07-31#07:07:41_res.pt', 3),\
-              #result_dir+'RNN4_2017-07-31#12:53:56_res.pt', 4),\
-              (result_dir+'RNN5_2017-07-31#18:33:47_res.pt', 5)]
+    resmat = [#(result_dir+'TextCNN1_2017-07-27#10:15:20_res.pt', 1),\
+              #(result_dir+'RNN1_2017-07-27#10:48:05_res.pt', 1),\
+              #(result_dir+'RCNN1_2017-07-27#11:01:07_res.pt', 1),\
+              #(result_dir+'RCNNcha_2017-07-27#16:19:23_res.pt', 1),\
+              #(result_dir+'FastText4_2017-07-28#15:14:47_res.pt', 4),\
+              (result_dir+'FastText10_res.pt', 10),\
+              (result_dir+'RNN10_cal_res.pt', 10),\
+              (result_dir+'TextCNN3_res.pt', 3),\
+              ('snapshots/FastText/layer_1_cal_res_char.pt', 1)]
     label = result_dir+'label.pt'
     opt['stack_num'] = len(resmat)
     

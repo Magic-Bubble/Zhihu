@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
-#from utils import normalize
+from utils import get_loss_weight
 
 class Stack_Dataset:
     def __init__(self, **datas):
