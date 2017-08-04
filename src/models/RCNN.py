@@ -10,20 +10,30 @@ class RCNN(nn.Module):
         super(RCNN, self).__init__()
         self.opt = opt
         
-        self.V = V = opt['embed_num']
-        self.D = D = opt['embed_dim']
-        embedding = torch.from_numpy(embed_mat)
+        D = opt['embed_dim']
+        if opt['use_char_word'] or opt['use_word_char']:
+            V_char = opt['char_embed_num']
+            V_word = opt['word_embed_num']
+            embedding_char = torch.from_numpy(embed_mat[:V_char])
+            embedding_word = torch.from_numpy(embed_mat[:V_word])
+            self.embed_char = nn.Embedding(V_char, D)
+            self.embed_word = nn.Embedding(V_word, D)
+            self.embed_char.weight.data.copy_(embedding_char)
+            self.embed_word.weight.data.copy_(embedding_word)
+        else:
+            V = opt['embed_num']
+            embedding = torch.from_numpy(embed_mat)
+            self.embed = nn.Embedding(V, D)
+            self.embed.weight.data.copy_(embedding)
+
         C = opt['class_num']
         
-        self.embed = nn.Embedding(V, D)
-        self.embed.weight.data.copy_(embedding)
-        
-        self.tdfc1 = nn.Linear(D, 512)
+        self.tdfc1 = nn.Linear(D, 256)
         #self.tdfc1 = nn.Linear(D, D)
         self.td1 = TimeDistributed(self.tdfc1)
         self.tdbn1 = nn.BatchNorm2d(1)
         
-        self.tdfc2 = nn.Linear(D, 512)
+        self.tdfc2 = nn.Linear(D, 256)
         #self.tdfc2 = nn.Linear(D, D)
         self.td2 = TimeDistributed(self.tdfc2)
         self.tdbn2 = nn.BatchNorm2d(1)
@@ -40,22 +50,22 @@ class RCNN(nn.Module):
         # self.lstm1 = nn.LSTM(512, 512, batch_first=True, bidirectional=True)
         # self.lstm2 = nn.LSTM(512, 512, batch_first=True, bidirectional=True)
 
-        self.lstm1 = nn.LSTM(512, 400, batch_first=True, bidirectional=True)
-        self.lstm2 = nn.LSTM(512, 400, batch_first=True, bidirectional=True)        
+        self.lstm1 = nn.LSTM(256, 256, batch_first=True, bidirectional=True)
+        self.lstm2 = nn.LSTM(256, 256, batch_first=True, bidirectional=True)        
         #self.lstm1 = nn.LSTM(D, D, batch_first=True, bidirectional=True)
         #self.lstm2 = nn.LSTM(D, D, batch_first=True, bidirectional=True)
 
         #self.conv1 = nn.Conv2d(1, 1024, (3, D*3))
-        self.conv1 = nn.Conv2d(1, 512, (1, 400+400+D))
+        self.conv1 = nn.Conv2d(1, 256, (1, 256+256+D))
         #self.convbn1 = nn.BatchNorm2d(1024)
-        self.convbn1 = nn.BatchNorm2d(512)
+        self.convbn1 = nn.BatchNorm2d(256)
         #self.conv2 = nn.Conv2d(1, 1024, (3, D*3))
-        self.conv2 = nn.Conv2d(1, 512, (1, 400+400+D))
+        self.conv2 = nn.Conv2d(1, 256, (1, 256+256+D))
         #self.convbn2 = nn.BatchNorm2d(1024)
-        self.convbn2 = nn.BatchNorm2d(512)
+        self.convbn2 = nn.BatchNorm2d(256)
         
         #self.fc = nn.Linear(2048, C)
-       	self.fc = nn.Linear(1024, C)
+       	self.fc = nn.Linear(512, C)
         
 #     def get_context_left(self, previous_context_left, previous_embedding, flag):
 #         l = getattr(self, 'l_{}'.format(flag))
@@ -99,13 +109,21 @@ class RCNN(nn.Module):
         
     def forward(self, x, y):
         batch_size = x.size(0)
+
+        if self.opt['use_char_word']:
+            x = self.embed_char(x.long())
+            y = self.embed_word(y.long())
+        elif self.opt['use_word_char']:
+            x = self.embed_word(x.long())
+            y = self.embed_char(y.long())
+        else:
+            x = self.embed(x.long())
+            y = self.embed(y.long())
         
-        x = self.embed(x.long())
         if self.opt['static']:
             x = x.detach()
         x = F.relu(self.tdbn1(self.td1(x).unsqueeze(1))).squeeze(1)
         
-        y = self.embed(y.long())
         if self.opt['static']:
             y = y.detach()
         y = F.relu(self.tdbn2(self.td2(y).unsqueeze(1))).squeeze(1)

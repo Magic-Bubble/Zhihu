@@ -19,10 +19,10 @@ def train(**kwargs):
     vis = Visualizer(opt['model'])
     logger = Logger()
 
-    logger.info('Load {} data starting...'.format('char' if opt['use_char'] else 'word'))
     if opt['use_double_length']: prefix = '_2'
     else: prefix = ''
     if opt['use_char']:
+        logger.info('Load char data starting...')
         opt['embed_num'] = opt['char_embed_num']
         embed_mat = np.load(opt['char_embed'])
         train_title = np.load(opt['train_title_char'+prefix])
@@ -31,7 +31,9 @@ def train(**kwargs):
         val_title = np.load(opt['val_title_char'+prefix])
         val_desc = np.load(opt['val_desc_char'+prefix])
         val_label = np.load(opt['val_label'])
-    else:
+        logger.info('Load char data finished!')
+    elif opt['use_word']:
+        logger.info('Load word data starting...')
         opt['embed_num'] = opt['word_embed_num']
         embed_mat = np.load(opt['word_embed'])
         train_title = np.load(opt['train_title_word'+prefix])
@@ -40,8 +42,32 @@ def train(**kwargs):
         val_title = np.load(opt['val_title_word'+prefix])
         val_desc = np.load(opt['val_desc_word'+prefix])
         val_label = np.load(opt['val_label'])
-    logger.info('Load {} data finished!'.format('char' if opt['use_char'] else 'word'))
-    				
+        logger.info('Load word data finished!')
+    elif opt['use_char_word']:
+        logger.info('Load char-word data starting...')
+        embed_mat_char = np.load(opt['char_embed'])
+        embed_mat_word = np.load(opt['word_embed'])
+        embed_mat = np.vstack((embed_mat_char, embed_mat_word))
+        train_title = np.load(opt['train_title_char'+prefix])
+        train_desc = np.load(opt['train_desc_word'+prefix])
+        train_label = np.load(opt['train_label'])
+        val_title = np.load(opt['val_title_char'+prefix])
+        val_desc = np.load(opt['val_desc_word'+prefix])
+        val_label = np.load(opt['val_label'])
+        logger.info('Load char-word data finished!')
+    elif opt['use_word_char']:
+        logger.info('Load word-char data starting...')
+        embed_mat_char = np.load(opt['char_embed'])
+        embed_mat_word = np.load(opt['word_embed'])
+        embed_mat = np.vstack((embed_mat_char, embed_mat_word))
+        train_title = np.load(opt['train_title_word'+prefix])
+        train_desc = np.load(opt['train_desc_char'+prefix])
+        train_label = np.load(opt['train_label'])
+        val_title = np.load(opt['val_title_word'+prefix])
+        val_desc = np.load(opt['val_desc_char'+prefix])
+        val_label = np.load(opt['val_label'])
+        logger.info('Load word-char data finished!')
+    
     train_dataset = Dataset(title=train_title, desc=train_desc, label=train_label, class_num=opt['class_num'])
     train_loader = data.DataLoader(train_dataset, shuffle=True, batch_size=opt['batch_size'])
     val_dataset = Dataset(title=val_title, desc=val_desc, label=val_label, class_num=opt['class_num'])
@@ -55,9 +81,9 @@ def train(**kwargs):
     loss_weight = torch.ones(opt['class_num'])
     if opt['boost']:
         if opt['base_layer'] != 0:
-            cal_res = torch.load('{}/{}/layer_{}_cal_res_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']), map_location=lambda storage, loc: storage)
+            cal_res = torch.load('{}/{}/layer_{}_cal_res_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']), map_location=lambda storage, loc: storage)
             logger.info('Load cal_res successful!')
-            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
         else:
             cal_res = torch.zeros(opt['val_num'], opt['class_num'])
         print 'cur_layer:', opt['base_layer'] + 1, \
@@ -140,9 +166,9 @@ def train(**kwargs):
                 cur_score = get_score(cal_res, truth)
                 logger.info('Layer {}: {}, Layer {}: {}'.format(opt['base_layer'], ori_score, opt['base_layer']+1, cur_score))
                 loss_weight = get_loss_weight(cal_res, truth)
-                torch.save(cal_res, '{}/{}/layer_{}_cal_res_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1))
+                torch.save(cal_res, '{}/{}/layer_{}_cal_res_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1))
                 logger.info('Save cal_res successful!')
-                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
+                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
             break
 								
 def eval(val_loader, model, opt, isBatch=False, return_err=False, save_res=False, return_res=False):
@@ -222,20 +248,38 @@ def test(**kwargs):
 
     logger = Logger()
 
-    logger.info('Load {} data starting...'.format('char' if opt['use_char'] else 'word'))
     if opt['use_double_length']: prefix = '_2'
     else: prefix = ''
     if opt['use_char']:
+        logger.info('Load char data starting...')
         opt['embed_num'] = opt['char_embed_num']
         embed_mat = np.load(opt['char_embed'])
         test_title = np.load(opt['test_title_char'+prefix])
         test_desc = np.load(opt['test_desc_char'+prefix])
-    else:
+        logger.info('Load char data finished!')
+    elif opt['use_word']:
+        logger.info('Load word data starting...')
         opt['embed_num'] = opt['word_embed_num']
         embed_mat = np.load(opt['word_embed'])
         test_title = np.load(opt['test_title_word'+prefix])
         test_desc = np.load(opt['test_desc_word'+prefix])
-    logger.info('Load {} data finished!'.format('char' if opt['use_char'] else 'word'))
+        logger.info('Load word data finished!')
+    elif opt['use_char_word']:
+        logger.info('Load char-word data starting...')
+        embed_mat_char = np.load(opt['char_embed'])
+        embed_mat_word = np.load(opt['word_embed'])
+        embed_mat = np.vstack((embed_mat_char, embed_mat_word))
+        test_title = np.load(opt['test_title_char'+prefix])
+        test_desc = np.load(opt['test_desc_word'+prefix])
+        logger.info('Load char-word data finished!')
+    elif opt['use_word_char']:
+        logger.info('Load word-char data starting...')
+        embed_mat_char = np.load(opt['char_embed'])
+        embed_mat_word = np.load(opt['word_embed'])
+        embed_mat = np.vstack((embed_mat_char, embed_mat_word))
+        test_title = np.load(opt['test_title_word'+prefix])
+        test_desc = np.load(opt['test_desc_char'+prefix])
+        logger.info('Load word-char data finished!')
 
     test_idx = np.load(opt['test_idx'])
     topic_idx = np.load(opt['topic_idx'])
@@ -299,15 +343,15 @@ def train_stack(**kwargs):
     logger = Logger()
     				
     result_dir = '/home/dyj/'
-    resmat = [#(result_dir+'TextCNN1_2017-07-27#10:15:20_res.pt', 1),\
-              #(result_dir+'RNN1_2017-07-27#10:48:05_res.pt', 1),\
-              #(result_dir+'RCNN1_2017-07-27#11:01:07_res.pt', 1),\
-              #(result_dir+'RCNNcha_2017-07-27#16:19:23_res.pt', 1),\
+    resmat = [(result_dir+'TextCNN1_2017-07-27#10:15:20_res.pt', 1),\
+              (result_dir+'RNN1_2017-07-27#10:48:05_res.pt', 1),\
+              (result_dir+'RCNN1_2017-07-27#11:01:07_res.pt', 1),\
+              (result_dir+'RCNNcha_2017-07-27#16:19:23_res.pt', 1),\
+              ('snapshots/FastText/layer_1_cal_res_char.pt', 1),\
               #(result_dir+'FastText4_2017-07-28#15:14:47_res.pt', 4),\
               (result_dir+'FastText10_res.pt', 10),\
-              (result_dir+'RNN10_cal_res.pt', 10),\
-              (result_dir+'TextCNN3_res.pt', 3),\
-              ('snapshots/FastText/layer_1_cal_res_char.pt', 1)]
+              ('snapshots/TextCNN/layer_12_cal_res_char.pt', 12),\
+              (result_dir+'TextCNN3_res.pt', 3)]
     label = result_dir+'label.pt'
     opt['stack_num'] = len(resmat)
     

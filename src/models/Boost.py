@@ -13,8 +13,10 @@ class Boost(nn.Module):
     def __init__(self, embed_mat, opt):
         super(Boost, self).__init__()
         
-        self.model1 = model1 = RNN(embed_mat, opt)
-        self.model1 = load_model(model1, model_dir=opt['model_dir'], model_name='RNN', name="")
+        self.model1 = model1 = FastText(embed_mat, opt)
+        self.model1 = load_model(model1, model_dir=opt['model_dir'], model_name='FastText', name="layer_1_char_epoch_5_2017-08-03#20:37:36_0.3783.params")
+        #self.model2 = model2 = TextCNN(embed_mat, opt)
+        #self.model2 = load_model(model2, model_dir=opt['model_dir'], model_name='TextCNN', name="")
         # self.model2 = model2 = RNN(embed_mat, opt)
         # self.model2 = load_model(model2, model_dir=opt['model_dir'], model_name='RNN', name="layer_7_epoch_5_2017-08-01#06:52:08_0.4073.params")
         # self.model3 = model3 = RNN(embed_mat, opt)
@@ -40,13 +42,14 @@ class Boost(nn.Module):
 
     def forward(self, x, y):
         logit1 = self.model1(x, y)
-        return logit
         #logit2 = self.model2(x, y)
         #logit3 = self.model3(x, y)
         #logit4 = self.model4(x, y)
         #logit5 = self.model5(x, y)
         #logit6 = self.model6(x, y)
         #logit7 = self.model7(x, y)
+        #logit = (logit1 / 11 * + logit2) / * 12
+        return logit1
         logit = torch.cat((logit1.unsqueeze(2), logit2.unsqueeze(2)), 2)
         logit = torch.cat((logit, logit3.unsqueeze(2)), 2)
         #logit = torch.cat((logit, logit4.unsqueeze(2)), 2)

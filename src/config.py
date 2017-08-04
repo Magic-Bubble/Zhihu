@@ -29,17 +29,17 @@ class DefaultConfig(dict):
 		self['val_desc_char_2'] = self['val_dir'] + 'val_desc_char_indices_2.npy'
 		self['val_desc_word_2'] = self['val_dir'] + 'val_desc_word_indices_2.npy'
 
-		self['train_all_dir'] = self['data_dir'] + 'train/'#_all/'
-		self['train_title_char_all'] = self['train_all_dir'] + 'train_title_char_indices.npy'#_all.npy'
-		self['train_title_word_all'] = self['train_all_dir'] + 'train_title_word_indices.npy'#_all.npy'
-		self['train_desc_char_all'] = self['train_all_dir'] + 'train_desc_char_indices.npy'#_all.npy'
-		self['train_desc_word_all'] = self['train_all_dir'] + 'train_desc_word_indices.npy'#_all.npy'
-		self['train_label_all'] = self['train_all_dir'] + 'train_label_indices.npy'#_all.npy'
+		# self['train_all_dir'] = self['data_dir'] + 'train/'#_all/'
+		# self['train_title_char_all'] = self['train_all_dir'] + 'train_title_char_indices.npy'#_all.npy'
+		# self['train_title_word_all'] = self['train_all_dir'] + 'train_title_word_indices.npy'#_all.npy'
+		# self['train_desc_char_all'] = self['train_all_dir'] + 'train_desc_char_indices.npy'#_all.npy'
+		# self['train_desc_word_all'] = self['train_all_dir'] + 'train_desc_word_indices.npy'#_all.npy'
+		# self['train_label_all'] = self['train_all_dir'] + 'train_label_indices.npy'#_all.npy'
 
-		self['train_title_char_all_2'] = self['train_all_dir'] + 'train_title_char_indices_2.npy'#all_2.npy'
-		self['train_title_word_all_2'] = self['train_all_dir'] + 'train_title_word_indices_2.npy'#all_2.npy'
-		self['train_desc_char_all_2'] = self['train_all_dir'] + 'train_desc_char_indices_2.npy'#all_2.npy'
-		self['train_desc_word_all_2'] = self['train_all_dir'] + 'train_desc_word_indices_2.npy'#all_2.npy'
+		# self['train_title_char_all_2'] = self['train_all_dir'] + 'train_title_char_indices_2.npy'#all_2.npy'
+		# self['train_title_word_all_2'] = self['train_all_dir'] + 'train_title_word_indices_2.npy'#all_2.npy'
+		# self['train_desc_char_all_2'] = self['train_all_dir'] + 'train_desc_char_indices_2.npy'#all_2.npy'
+		# self['train_desc_word_all_2'] = self['train_all_dir'] + 'train_desc_word_indices_2.npy'#all_2.npy'
 
 		self['test_dir'] = self['data_dir'] + 'test/'
 		self['test_idx'] = self['test_dir'] + 'test_idx.npy'
@@ -56,7 +56,10 @@ class DefaultConfig(dict):
 		self['topic_dir'] = self['data_dir'] + 'topic/'
 		self['topic_idx'] = self['topic_dir'] + 'topic_idx.npy'
 
+		self['use_word'] = False
 		self['use_char'] = False
+		self['use_char_word'] = False
+		self['use_word_char'] = False
 		self['static'] = True
 		self['use_double_length'] = True
         
