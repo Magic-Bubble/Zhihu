@@ -33,9 +33,6 @@ class TextCNN(nn.Module):
         Ks2 = [3,4,5,6,7]
         #self.kmax = kmax = 3
         
-        self.embed = nn.Embedding(V, D)
-        self.embed.weight.data.copy_(embedding)
-        
         self.tdfc1 = nn.Linear(D, 256)#512)
         self.td1 = TimeDistributed(self.tdfc1)
         self.tdbn1 = nn.BatchNorm2d(1)
@@ -54,6 +51,7 @@ class TextCNN(nn.Module):
         #self.kmax_pooling = K_MaxPooling(kmax)
 
         self.fc1 = nn.Linear((len(Ks1)+len(Ks2))*Co, 2000)#4096)
+        # self.fc1 = nn.Linear(len(Ks1)*Co, 2000)
         self.bn1 = nn.BatchNorm1d(2000)#4096)
         self.fc2 = nn.Linear(2000, C)#4096, C)
         
