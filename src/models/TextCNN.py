@@ -78,12 +78,12 @@ class TextCNN(nn.Module):
         
         x = [F.relu(self.convbn1[i](conv(x))).squeeze(3) for i, conv in enumerate(self.convs1)]
         x = [F.max_pool1d(i, i.size(2)).squeeze(2) for i in x]
-        # x = [self.kmax_pooling(i, 2).mean(2).squeeze(2) for i in x]
+        #x = [self.kmax_pooling(i, 2).mean(2).squeeze(2) for i in x]
         x = torch.cat(x, 1)
         
         y = [F.relu(self.convbn2[i](conv(y))).squeeze(3) for i, conv in enumerate(self.convs2)]
         y = [F.max_pool1d(i, i.size(2)).squeeze(2) for i in y]
-        # y = [self.kmax_pooling(i, 2).mean(2).squeeze(2) for i in y]
+        #y = [self.kmax_pooling(i, 2).mean(2).squeeze(2) for i in y]
         y = torch.cat(y, 1)
         
         x = torch.cat((x, y), 1)
