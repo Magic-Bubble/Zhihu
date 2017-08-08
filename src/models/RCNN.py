@@ -129,8 +129,8 @@ class RCNN(nn.Module):
         y = F.relu(self.tdbn2(self.td2(y).unsqueeze(1))).squeeze(1)
         
         # x = self.get_context_embedding(x, 1)
-        h0_1 = Variable(torch.randn(2, batch_size, 512))
-        c0_1 = Variable(torch.randn(2, batch_size, 512))
+        h0_1 = Variable(torch.randn(2, batch_size, 256))
+        c0_1 = Variable(torch.randn(2, batch_size, 256))
         #h0_1 = Variable(torch.randn(2, batch_size, self.D))
         #c0_1 = Variable(torch.randn(2, batch_size, self.D))
         if self.opt['cuda']:
@@ -143,8 +143,8 @@ class RCNN(nn.Module):
         x = F.max_pool1d(x, x.size(2)).squeeze(2)
         
         # y = self.get_context_embedding(y, 2)
-        h0_2 = Variable(torch.randn(2, batch_size, 512))
-        c0_2 = Variable(torch.randn(2, batch_size, 512))
+        h0_2 = Variable(torch.randn(2, batch_size, 256))
+        c0_2 = Variable(torch.randn(2, batch_size, 256))
         #h0_2 = Variable(torch.randn(2, batch_size, self.D))
         #c0_2 = Variable(torch.randn(2, batch_size, self.D))
         if self.opt['cuda']:

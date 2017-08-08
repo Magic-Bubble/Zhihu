@@ -96,7 +96,7 @@ def get_score(logit, label):
 
 def get_loss_weight(logit, label):
     class_num = logit.size(1)
-    predict_label_list = [list(ii) for ii in logit.topk(1, 1)[1]]
+    predict_label_list = [list(ii) for ii in logit.topk(5, 1)[1]]
     marked_label_list = [list(np.where(ii.numpy()==1)[0]) for ii in label]
     sample_per_class = torch.zeros(class_num)
     error_per_class = torch.zeros(class_num)
@@ -108,7 +108,7 @@ def get_loss_weight(logit, label):
     return error_per_class / sample_per_class
 
 def normalize(logit):
-    logit = torch.sigmoid(logit)
+    logit = sigmoid(logit)
     logit = logit / logit.sum(1).expand_as(logit)
     return logit
 
