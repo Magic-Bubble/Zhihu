@@ -28,38 +28,41 @@ def emsemble_test():
     result_dir = '/home/dyj/'
     # cnn1 = torch.load(result_dir + 'TextCNN1_2017-07-27#12:30:16_test_res.pt')
     # cnn1_loss_weight = torch.load(result_dir + 'TextCNN1_loss_weight.pt')
-    rnn1 = torch.load(result_dir+'RNN1_2017-07-27#12:35:51_test_res.pt')
-    rnn1_loss_weight = torch.load(result_dir + 'RNN1_loss_weight.pt')
+    # rnn1 = torch.load(result_dir+'RNN1_2017-07-27#12:35:51_test_res.pt')
+    # rnn1_loss_weight = torch.load(result_dir + 'RNN1_loss_weight.pt')
     # rcnn1 = torch.load(result_dir + 'RCNN1_2017-07-27#11:30:42_test_res.pt')
     # rcnn1_loss_weight = torch.load(result_dir + 'RCNN1_loss_weight.pt')
-    rcnncha = torch.load(result_dir + 'RCNNcha_2017-07-27#16:00:33_test_res.pt')
-    rcnncha_loss_weight = torch.load(result_dir + 'RCNNcha_loss_weight.pt')
+    # rcnncha = torch.load(result_dir + 'RCNNcha_2017-07-27#16:00:33_test_res.pt')
+    # rcnncha_loss_weight = torch.load(result_dir + 'RCNNcha_loss_weight.pt')
     # fasttext4 = torch.load(result_dir + 'FastText4_2017-07-28#17:20:21_test_res.pt')
     # fasttext4_loss_weight = torch.load(result_dir + 'FastText4_loss_weight.pt')
-    fasttext1_char = torch.load('../results/FastText1_char_test_res.pt')
-    fasttext1_loss_weight = torch.load('../snapshots/FastText/layer_2_loss_weight_char.pt')
-    fasttext10 = torch.load(result_dir + 'FastText10_test_res.pt')
-    fasttext10_loss_weight = torch.load(result_dir + 'FastText10_loss_weight.pt')
+    # fasttext1_char = torch.load('../results/FastText1_char_test_res.pt')
+    # fasttext1_loss_weight = torch.load('../snapshots/FastText/layer_2_loss_weight_char.pt')
+    # fasttext10 = torch.load(result_dir + 'FastText10_test_res.pt')
+    # fasttext10_loss_weight = torch.load(result_dir + 'FastText10_loss_weight.pt')
     # rnn10 = torch.load(result_dir + 'RNN10_test_res.pt')
     # rnn10_loss_weight = torch.load(result_dir + 'RNN10_loss_weight.pt')
-    rnn10_cnn7 = torch.load(result_dir + 'RNN10_CNN7_test_res.pt')
-    rnn10_cnn7_loss_weight = torch.load('../snapshots/TextCNN/layer_18_loss_weight_3.pt')
-    cnn3 = torch.load('../results/TextCNN3_top1_2017-08-07#12:30:01_test_res.pt')
-    cnn3_loss_weight = torch.load('../results/TextCNN3_top1_loss_weight_5.pt')
-    cnn4 = torch.load(result_dir + 'TextCNN4_test_res.pt')
-    cnn4_loss_weight = torch.load('../snapshots/TextCNN/layer_5_loss_weight_3.pt')
+    # rnn10_cnn7 = torch.load(result_dir + 'RNN10_CNN7_test_res.pt')
+    # rnn10_cnn7_loss_weight = torch.load('../snapshots/TextCNN/layer_18_loss_weight_3.pt')
+    # cnn3 = torch.load('../results/TextCNN3_top1_2017-08-07#12:30:01_test_res.pt')
+    # cnn3_loss_weight = torch.load('../results/TextCNN3_top1_loss_weight_5.pt')
+    # cnn4 = torch.load(result_dir + 'TextCNN4_test_res.pt')
+    # cnn4_loss_weight = torch.load('../snapshots/TextCNN/layer_5_loss_weight_3.pt')
 
-    cnn7 = torch.from_numpy(np.load('/home/cuidesheng/ncnnp7.npy')).float()
+    # cnn7 = torch.from_numpy(np.load('/home/cuidesheng/ncnnp7.npy')).float()
 
-    logit = sigmoid(rnn1) * torch.sqrt(1-rnn1_loss_weight+rnn1_loss_weight.mean()).expand_as(rnn1) * 0.0292 + \
-        sigmoid(rcnncha) * torch.sqrt(1-rcnncha_loss_weight+rcnncha_loss_weight.mean()).expand_as(rcnncha) * 0.0126 + \
-        sigmoid(fasttext1_char) * torch.sqrt(1-fasttext1_loss_weight+fasttext1_loss_weight.mean()).expand_as(fasttext1_char) * 0.0182 + \
-        sigmoid(fasttext10/10) * torch.sqrt(1-fasttext10_loss_weight+fasttext10_loss_weight.mean()).expand_as(fasttext10) * 0.0466 + \
-        sigmoid(rnn10_cnn7/17) * torch.sqrt(1-rnn10_cnn7_loss_weight+rnn10_cnn7_loss_weight.mean()).expand_as(rnn10_cnn7) * 0.4903 + \
-        sigmoid(cnn3/3) * torch.sqrt(1-cnn3_loss_weight+cnn3_loss_weight.mean()).expand_as(cnn3) * 0.1533 + \
-        sigmoid(cnn4/4) * torch.sqrt(1-cnn4_loss_weight+cnn4_loss_weight.mean()).expand_as(cnn4) * 0.1154 + \
-        cnn7 / 7 * 0.1154
+    # logit = sigmoid(rnn1) * torch.sqrt(1-rnn1_loss_weight+rnn1_loss_weight.mean()).expand_as(rnn1) * 0.0292 + \
+    #     sigmoid(rcnncha) * torch.sqrt(1-rcnncha_loss_weight+rcnncha_loss_weight.mean()).expand_as(rcnncha) * 0.0126 + \
+    #     sigmoid(fasttext1_char) * torch.sqrt(1-fasttext1_loss_weight+fasttext1_loss_weight.mean()).expand_as(fasttext1_char) * 0.0182 + \
+    #     sigmoid(fasttext10/10) * torch.sqrt(1-fasttext10_loss_weight+fasttext10_loss_weight.mean()).expand_as(fasttext10) * 0.0466 + \
+    #     sigmoid(rnn10_cnn7/17) * torch.sqrt(1-rnn10_cnn7_loss_weight+rnn10_cnn7_loss_weight.mean()).expand_as(rnn10_cnn7) * 0.4903 + \
+    #     sigmoid(cnn3/3) * torch.sqrt(1-cnn3_loss_weight+cnn3_loss_weight.mean()).expand_as(cnn3) * 0.1533 + \
+    #     sigmoid(cnn4/4) * torch.sqrt(1-cnn4_loss_weight+cnn4_loss_weight.mean()).expand_as(cnn4) * 0.1154 + \
+    #     cnn7 / 7 * 0.1154
 
+    rnn10_finetune5 = torch.load('../results/RNN10_finetune5_test_res.pt')
+    rnn10_loss_weight = torch.load('../snapshots/RNN/layer_11_loss_weight_3.pt')
+    logit = sigmoid(rnn10_finetune5/10) * torch.sqrt(1-rnn10_loss_weight+rnn10_loss_weight.mean()).expand_as(rnn10_finetune5)
 
     predict_label_list = [list(ii) for ii in logit.topk(5, 1)[1]]
     lines = []
@@ -96,7 +99,7 @@ def get_score(logit, label):
 
 def get_loss_weight(logit, label):
     class_num = logit.size(1)
-    predict_label_list = [list(ii) for ii in logit.topk(5, 1)[1]]
+    predict_label_list = [list(ii) for ii in logit.topk(1, 1)[1]]
     marked_label_list = [list(np.where(ii.numpy()==1)[0]) for ii in label]
     sample_per_class = torch.zeros(class_num)
     error_per_class = torch.zeros(class_num)

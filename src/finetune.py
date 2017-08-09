@@ -1,0 +1,13 @@
+def hh():
+   %run main.py finetune_all --model=RNN --use_word=True --boost=True --base_layer=5 --load=True --load_name=layer_6_epoch_5_2017-08-01#01:18:16_0.4120.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=RNN --use_word=True --boost=True --base_layer=6 --load=True --load_name=layer_7_epoch_5_2017-08-01#06:52:08_0.4073.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=RNN --use_word=True --boost=True --base_layer=7 --load=True --load_name=layer_8_epoch_5_2017-08-01#12:27:23_0.4106.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=RNN --use_word=True --boost=True --base_layer=8 --load=True --load_name=layer_9_epoch_5_2017-08-01#18:06:23_0.4116.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=RNN --use_word=True --boost=True --base_layer=9 --load=True --load_name=layer_10_epoch_5_2017-08-01#23:32:47_0.4113.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=TextCNN --use_char=True --boost=True --base_layer=10 --load=True --load_name=layer_11_char_epoch_5_2017-08-04#15:58:35_0.4016.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=TextCNN --use_char=True --boost=True --base_layer=11 --load=True --load_name=layer_12_char_epoch_5_2017-08-04#22:18:48_0.4018.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=TextCNN --use_char=True --boost=True --base_layer=12 --load=True --load_name=layer_13_char_epoch_5_2017-08-05#06:43:41_0.4016.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=TextCNN --use_char=True --boost=True --base_layer=13 --load=True --load_name=layer_14_char_epoch_5_2017-08-05#12:47:54_0.4016.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=TextCNN --use_char=True --boost=True --base_layer=14 --load=True --load_name=layer_15_char_epoch_5_2017-08-05#18:56:31_0.4016.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=TextCNN --use_char=True --boost=True --base_layer=5 --load=True --load_name=layer_6_char_epoch_5_2017-08-09#04:12:14_0.4017.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
+   %run main.py finetune_all --model=TextCNN --use_char=True --boost=True --base_layer=6 --load=True --load_name=layer_7_char_epoch_5_2017-08-09#10:19:28_0.4017.params --base_epoch=5 --static=False --lr=0.0001 --epochs=6
