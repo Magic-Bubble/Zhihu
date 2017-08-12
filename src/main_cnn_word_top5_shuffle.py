@@ -10,7 +10,20 @@ import datetime
 from config import DefaultConfig
 from dataset import Dataset, Stack_Dataset
 import models
-from utils import load_model, save_model, Visualizer, Logger, write_result, get_loss_weight, get_score
+from utils import load_model, save_model, Visualizer, Logger, write_result, get_score
+
+def get_loss_weight(logit, label):
+    class_num = logit.size(1)
+    predict_label_list = [list(ii) for ii in logit.topk(5, 1)[1]]
+    marked_label_list = [list(np.where(ii.numpy()==1)[0]) for ii in label]
+    sample_per_class = torch.zeros(class_num)
+    error_per_class = torch.zeros(class_num)
+    for predict_labels, marked_labels in zip(predict_label_list, marked_label_list):
+        for true_label in marked_labels:
+            sample_per_class[true_label] += 1
+            if true_label not in predict_labels:
+                error_per_class[true_label] += 1
+    return error_per_class / sample_per_class
 
 def train(**kwargs):
     opt = DefaultConfig()
@@ -83,9 +96,9 @@ def train(**kwargs):
     loss_weight = torch.ones(opt['class_num'])
     if opt['boost']:
         if opt['base_layer'] != 0:
-            cal_res = torch.load('{}/{}/layer_{}_cal_res_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']), map_location=lambda storage, loc: storage)
+            cal_res = torch.load('{}/{}/layer_{}_cal_res_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']), map_location=lambda storage, loc: storage)
             logger.info('Load cal_res successful!')
-            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
         else:
             cal_res = torch.zeros(opt['val_num'], opt['class_num'])
         print 'cur_layer:', opt['base_layer'] + 1, \
@@ -168,9 +181,9 @@ def train(**kwargs):
                 cur_score = get_score(cal_res, truth)
                 logger.info('Layer {}: {}, Layer {}: {}'.format(opt['base_layer'], ori_score, opt['base_layer']+1, cur_score))
                 loss_weight = get_loss_weight(cal_res, truth)
-                torch.save(cal_res, '{}/{}/layer_{}_cal_res_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1))
+                torch.save(cal_res, '{}/{}/layer_{}_cal_res_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1))
                 logger.info('Save cal_res successful!')
-                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
+                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
             break
 								
 def eval(val_loader, model, opt, isBatch=False, return_err=False, save_res=False, return_res=False):
@@ -302,9 +315,9 @@ def finetune_all(**kwargs):
     if opt['boost']:
         if opt['base_layer'] != 0:
             if opt['use_char']:
-                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
             elif opt['use_word']:
-                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
         print 'cur_layer:', opt['base_layer'] + 1, \
               'loss_weight:', loss_weight.mean(), loss_weight.max(), loss_weight.min(), loss_weight.std()
 

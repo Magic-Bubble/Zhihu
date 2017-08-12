@@ -10,7 +10,7 @@ import datetime
 from config import DefaultConfig
 from dataset import Dataset, Stack_Dataset
 import models
-from utils import load_model, save_model, Visualizer, Logger, write_result, get_loss_weight, get_score
+from utils import load_model, save_model, Visualizer, Logger, write_result, get_score, get_loss_weight
 
 def train(**kwargs):
     opt = DefaultConfig()
@@ -83,9 +83,9 @@ def train(**kwargs):
     loss_weight = torch.ones(opt['class_num'])
     if opt['boost']:
         if opt['base_layer'] != 0:
-            cal_res = torch.load('{}/{}/layer_{}_cal_res_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']), map_location=lambda storage, loc: storage)
+            cal_res = torch.load('{}/{}/layer_{}_cal_res_top1_char_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']), map_location=lambda storage, loc: storage)
             logger.info('Load cal_res successful!')
-            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_top1_char_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
         else:
             cal_res = torch.zeros(opt['val_num'], opt['class_num'])
         print 'cur_layer:', opt['base_layer'] + 1, \
@@ -154,7 +154,7 @@ def train(**kwargs):
                             epoch + base_epoch, score, precision, recall)
         vis.log(log_info)
         save_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
-                    epoch=epoch+base_epoch, score=score)
+                    epoch=str(epoch+base_epoch)+'_shuffle', score=score)
         if epoch + base_epoch == 2:
             model.opt['static'] = False
         elif epoch + base_epoch == 4:
@@ -168,9 +168,9 @@ def train(**kwargs):
                 cur_score = get_score(cal_res, truth)
                 logger.info('Layer {}: {}, Layer {}: {}'.format(opt['base_layer'], ori_score, opt['base_layer']+1, cur_score))
                 loss_weight = get_loss_weight(cal_res, truth)
-                torch.save(cal_res, '{}/{}/layer_{}_cal_res_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1))
+                torch.save(cal_res, '{}/{}/layer_{}_cal_res_top1_char_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1))
                 logger.info('Save cal_res successful!')
-                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
+                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_top1_char_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
             break
 								
 def eval(val_loader, model, opt, isBatch=False, return_err=False, save_res=False, return_res=False):
@@ -302,9 +302,9 @@ def finetune_all(**kwargs):
     if opt['boost']:
         if opt['base_layer'] != 0:
             if opt['use_char']:
-                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_top1_char_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
             elif opt['use_word']:
-                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_top1_char_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
         print 'cur_layer:', opt['base_layer'] + 1, \
               'loss_weight:', loss_weight.mean(), loss_weight.max(), loss_weight.min(), loss_weight.std()
 
