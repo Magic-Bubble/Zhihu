@@ -2,10 +2,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+import random
 
 class Dataset:
     def __init__(self, **datas):
         self.test = datas.get('test', False)
+        self.augment = datas.get('augment', False)
 
         title = datas['title']
         desc = datas['desc']
@@ -36,8 +38,12 @@ class Dataset:
                 self.label = label[cv_start:cv_end]
 
     def __getitem__(self, idx):
-        title = torch.from_numpy(self.title[idx])
-        desc = torch.from_numpy(self.desc[idx])
+        if self.augment:
+            title = torch.from_numpy(self.augment_func(self.title[idx], 0.3))
+            desc = torch.from_numpy(self.augment_func(self.desc[idx], 0.7))
+        else:
+            title = torch.from_numpy(self.title[idx])
+            desc = torch.from_numpy(self.desc[idx])
         if self.test is False:
             label = torch.zeros(self.n_classes).scatter_(0, torch.from_numpy(self.label[idx]).long(), 1).int()
             return title, desc, label
@@ -45,3 +51,13 @@ class Dataset:
 
     def __len__(self):
         return self.title.shape[0]
+
+    def augment_func(self, data, dropout):
+        tmp = data.copy()
+        p = random.randint(0, 1)
+        if p:
+            np.random.shuffle(tmp)
+        else:
+            b = np.random.permutation(tmp.shape[0])
+            tmp[b[:int(dropout*tmp.shape[0])]] = 0
+        return tmp

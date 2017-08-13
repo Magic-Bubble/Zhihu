@@ -83,7 +83,7 @@ def train(**kwargs):
         val_label = np.load(opt['val_label'])
         logger.info('Load word-char data finished!')
     
-    train_dataset = Dataset(title=train_title, desc=train_desc, label=train_label, class_num=opt['class_num'])
+    train_dataset = Dataset(title=train_title, desc=train_desc, label=train_label, class_num=opt['class_num'], augment=True)
     train_loader = data.DataLoader(train_dataset, shuffle=True, batch_size=opt['batch_size'])
     val_dataset = Dataset(title=val_title, desc=val_desc, label=val_label, class_num=opt['class_num'])
     val_loader = data.DataLoader(val_dataset, shuffle=False, batch_size=opt['batch_size'])
@@ -96,9 +96,9 @@ def train(**kwargs):
     loss_weight = torch.ones(opt['class_num'])
     if opt['boost']:
         if opt['base_layer'] != 0:
-            cal_res = torch.load('{}/{}/layer_{}_cal_res_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']), map_location=lambda storage, loc: storage)
+            cal_res = torch.load('{}/{}/layer_{}_cal_res_augment.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']), map_location=lambda storage, loc: storage)
             logger.info('Load cal_res successful!')
-            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_augment.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
         else:
             cal_res = torch.zeros(opt['val_num'], opt['class_num'])
         print 'cur_layer:', opt['base_layer'] + 1, \
@@ -167,7 +167,7 @@ def train(**kwargs):
                             epoch + base_epoch, score, precision, recall)
         vis.log(log_info)
         save_model(model, model_dir=opt['model_dir'], model_name=opt['model'], \
-                    epoch=epoch+base_epoch, score=score)
+                    epoch=str(epoch+base_epoch)+'_augment', score=score)
         if epoch + base_epoch == 2:
             model.opt['static'] = False
         elif epoch + base_epoch == 4:
@@ -181,9 +181,9 @@ def train(**kwargs):
                 cur_score = get_score(cal_res, truth)
                 logger.info('Layer {}: {}, Layer {}: {}'.format(opt['base_layer'], ori_score, opt['base_layer']+1, cur_score))
                 loss_weight = get_loss_weight(cal_res, truth)
-                torch.save(cal_res, '{}/{}/layer_{}_cal_res_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1))
+                torch.save(cal_res, '{}/{}/layer_{}_cal_res_augment.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1))
                 logger.info('Save cal_res successful!')
-                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_shuffle.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
+                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_augment.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
             break
 								
 def eval(val_loader, model, opt, isBatch=False, return_err=False, save_res=False, return_res=False):
@@ -303,7 +303,7 @@ def finetune_all(**kwargs):
         train_label = np.load(opt['train_label_all'])
         logger.info('Load word-char data finished!')
     
-    train_dataset = Dataset(title=train_title, desc=train_desc, label=train_label, class_num=opt['class_num'])
+    train_dataset = Dataset(title=train_title, desc=train_desc, label=train_label, class_num=opt['class_num'], augment=True)
     train_loader = data.DataLoader(train_dataset, shuffle=True, batch_size=opt['batch_size'])
     
     logger.info('Using model {}'.format(opt['model']))

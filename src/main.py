@@ -111,7 +111,7 @@ def train(**kwargs):
         loss_weight = loss_weight.cuda()
         
     # import sys
-    # precision, recall, score = eval(val_loader, model, opt, save_res=False)
+    # precision, recall, score = eval(val_loader, model, opt, save_res=True)
     # print precision, recall, score
     # sys.exit()
         
@@ -304,7 +304,7 @@ def finetune_all(**kwargs):
             if opt['use_char']:
                 loss_weight = torch.load('{}/{}/layer_{}_loss_weight_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
             elif opt['use_word']:
-                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
         print 'cur_layer:', opt['base_layer'] + 1, \
               'loss_weight:', loss_weight.mean(), loss_weight.max(), loss_weight.min(), loss_weight.std()
 
@@ -476,14 +476,14 @@ def train_stack(**kwargs):
               #(result_dir+'RCNNcha_2017-07-27#16:19:23_res.pt', 1),\
               #('snapshots/FastText/layer_1_cal_res_char.pt', 1),\
               #(result_dir+'FastText4_2017-07-28#15:14:47_res.pt', 4),\
-              
               #('snapshots/TextCNN/layer_17_cal_res_3.pt', 17),\
               (result_dir + 'RNN10_cal_res.pt', 10),\
-              (result_dir + 'TextCNN7_char_top5.pt', 7),\
-              (result_dir + 'TextCNN5_word_top1.pt', 5),\
-              (result_dir + 'TextCNN3_char_top1.pt', 3),\
-              (result_dir + 'TextCNN4_cal_res.pt', 4)
-              #('snapshots/TextCNN/layer_4_cal_res_3.pt', 4)
+              ('snapshots/TextCNN/layer_10_cal_res_char.pt', 10),\
+              ('snapshots/TextCNN/layer_10_cal_res_top1.pt', 10),\
+              ('snapshots/TextCNN/layer_8_cal_res_top1_char.pt', 8),\
+              (result_dir + 'TextCNN4_cal_res.pt', 4),\
+              (result_dir + 'FastText10_res.pt', 10),\
+              ('snapshots/TextCNN/layer_4_cal_res_shuffle.pt', 4)
               ]
     label = result_dir+'label.pt'
     opt['stack_num'] = len(resmat)
