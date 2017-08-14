@@ -110,10 +110,10 @@ def train(**kwargs):
         model.cuda()
         loss_weight = loss_weight.cuda()
         
-    # import sys
-    # precision, recall, score = eval(val_loader, model, opt, save_res=True)
-    # print precision, recall, score
-    # sys.exit()
+    #import sys
+    #precision, recall, score = eval(val_loader, model, opt, save_res=True)
+    #print precision, recall, score
+    #sys.exit()
         
     loss_function = Loss(weight=loss_weight+1-loss_weight.mean())
     optimizer = torch.optim.Adam(model.parameters(), lr=opt['lr'])
@@ -478,12 +478,17 @@ def train_stack(**kwargs):
               #(result_dir+'FastText4_2017-07-28#15:14:47_res.pt', 4),\
               #('snapshots/TextCNN/layer_17_cal_res_3.pt', 17),\
               (result_dir + 'RNN10_cal_res.pt', 10),\
-              ('snapshots/TextCNN/layer_10_cal_res_char.pt', 10),\
-              ('snapshots/TextCNN/layer_10_cal_res_top1.pt', 10),\
-              ('snapshots/TextCNN/layer_8_cal_res_top1_char.pt', 8),\
-              (result_dir + 'TextCNN4_cal_res.pt', 4),\
+              (result_dir + 'TextCNN10_char.pt', 10),\
+              (result_dir + 'TextCNN10_top1.pt', 10),\
+              (result_dir + 'TextCNN10_top1_char.pt', 10),\
               (result_dir + 'FastText10_res.pt', 10),\
-              ('snapshots/TextCNN/layer_4_cal_res_shuffle.pt', 4)
+              (result_dir + 'TextCNN4_cal_res.pt', 4),\
+              (result_dir + 'TextCNN9_augment.pt', 9),\
+              #(result_dir + 'TextCNN5_shuffle.pt', 5),\
+              #(result_dir + 'TextCNN_word_char_2017-08-08#19:56:25_res.pt', 1),\
+              #(result_dir + 'RNN10_CNN7.pt', 17),\
+              #(result_dir + 'RNN10_CNN8.pt', 18),\
+              #(result_dir + 'RNN10_CNN9.pt', 19)
               ]
     label = result_dir+'label.pt'
     opt['stack_num'] = len(resmat)

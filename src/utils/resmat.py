@@ -66,13 +66,19 @@ def emsemble_test():
     cnn10_char_finetune = torch.load('../results/TextCNN10_finetune_char_test_res.pt')
     cnn10_char_loss_weight = torch.load('../snapshots/TextCNN/layer_11_loss_weight_char.pt')
     cnn10_top1_finetune = torch.load('../results/TextCNN10_finetune_top1_test_res.pt')
-    cnn10_top1_loss_weight = get_loss_weight_5(cnn10_top1_finetune, label)
+    cnn10_top1_loss_weight = torch.load('../snapshots/TextCNN/layer_11_loss_weight_top1_top5.pt')
+    cnn10_top1_char_finetune = torch.load('../results/TextCNN10_finetune_top1_char_test_res.pt')
+    cnn10_top1_char_loss_weight = torch.load('../snapshots/TextCNN/layer_11_loss_weight_top1_char_top5.pt')
     fasttext10_finetune = torch.load('../results/FastText10_finetune_test_res.pt')
     fasttext10_loss_weight = torch.load('../snapshots/FastText/layer_11_loss_weight_3.pt')
-    logit = sigmoid(rnn10_finetune/10) * torch.sqrt(1-rnn10_loss_weight+rnn10_loss_weight.mean()).expand_as(rnn10_finetune) * 0.32 + \
-            sigmoid(cnn10_char_finetune/10) * torch.sqrt(1-cnn10_char_loss_weight+cnn10_char_loss_weight.mean()).expand_as(cnn10_char_finetune) * 0.2 + \
-            sigmoid(cnn10_top1_finetune/10) * torch.sqrt(1-cnn10_top1_loss_weight+cnn10_top1_loss_weight.mean()).expand_as(cnn10_top1_finetune) * 0.14 + \
-            sigmoid(fasttext10_finetune/10) * torch.sqrt(1-fasttext10_loss_weight+fasttext10_loss_weight.mean()).expand_as(fasttext10_finetune) * 0.06
+    cnn4_fintune = torch.load('../results/TextCNN4_finetune_test_res.pt')
+    cnn4_loss_weight = torch.load('../snapshots/TextCNN1/layer_5_loss_weight_3.pt')
+    logit = sigmoid(rnn10_finetune/10) * torch.sqrt(1-rnn10_loss_weight+rnn10_loss_weight.mean()).expand_as(rnn10_finetune) * 0.30 + \
+            sigmoid(cnn10_char_finetune/10) * torch.sqrt(1-cnn10_char_loss_weight+cnn10_char_loss_weight.mean()).expand_as(cnn10_char_finetune) * 0.14 + \
+            sigmoid(cnn10_top1_finetune/10) * torch.sqrt(1-cnn10_top1_loss_weight+cnn10_top1_loss_weight.mean()).expand_as(cnn10_top1_finetune) * 0.19 + \
+            sigmoid(cnn10_top1_char_finetune/10) * torch.sqrt(1-cnn10_top1_char_loss_weight+cnn10_top1_char_loss_weight.mean()).expand_as(cnn10_top1_char_finetune) * 0.15 + \
+            sigmoid(fasttext10_finetune/10) * torch.sqrt(1-fasttext10_loss_weight+fasttext10_loss_weight.mean()).expand_as(fasttext10_finetune) * 0.02 + \
+            sigmoid(cnn4_fintune/4) * torch.sqrt(1-cnn4_loss_weight+cnn4_loss_weight.mean()).expand_as(cnn4_fintune) * 0.1
 
     predict_label_list = [list(ii) for ii in logit.topk(5, 1)[1]]
     lines = []

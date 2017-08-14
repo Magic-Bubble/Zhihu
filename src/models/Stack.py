@@ -9,7 +9,7 @@ class Stack(nn.Module):
         self.stack_num = stack_num = opt['stack_num']
         self.class_num = opt['class_num']
         self.fc = nn.Linear(stack_num, 1, bias=False)
-        self.fc.weight.data.fill_(0.3)
+        self.fc.weight.data.fill_(0.25)
 
     def forward(self, x):
         x = torch.stack(x, 2)

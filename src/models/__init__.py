@@ -1,5 +1,6 @@
 from FastText import FastText
 from TextCNN import TextCNN
+from TextCNN1 import TextCNN1
 from RNN import RNN
 from RCNN import RCNN
 from HAN import HAN
