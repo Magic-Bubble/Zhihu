@@ -14,14 +14,14 @@ class Boost(nn.Module):
     def __init__(self, embed_mat, opt):
         super(Boost, self).__init__()
         
-        self.model1 = model1 = TextCNN1(embed_mat, opt)
-        self.model1 = load_model(model1, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_1_finetune_epoch_6_2017-08-13#20:06:08.params")
-        self.model2 = model2 = TextCNN1(embed_mat, opt)
-        self.model2 = load_model(model2, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_2_finetune_epoch_6_2017-08-14#00:47:19.params")
-        self.model3 = model3 = TextCNN1(embed_mat, opt)
-        self.model3 = load_model(model3, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_3_finetune_epoch_6_2017-08-14#04:07:52.params")
-        self.model4 = model4 = TextCNN1(embed_mat, opt)
-        self.model4 = load_model(model4, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_4_finetune_epoch_6_2017-08-14#07:28:16.params")
+        self.model1 = model1 = TextCNN(embed_mat, opt)
+        self.model1 = load_model(model1, model_dir=opt['model_dir'], model_name='TextCNN', name="layer_19_finetune_top1_epoch_6_2017-08-14#15:39:31.params")
+        # self.model2 = model2 = TextCNN1(embed_mat, opt)
+        # self.model2 = load_model(model2, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_2_finetune_epoch_6_2017-08-14#00:47:19.params")
+        # self.model3 = model3 = TextCNN1(embed_mat, opt)
+        # self.model3 = load_model(model3, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_3_finetune_epoch_6_2017-08-14#04:07:52.params")
+        # self.model4 = model4 = TextCNN1(embed_mat, opt)
+        # self.model4 = load_model(model4, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_4_finetune_epoch_6_2017-08-14#07:28:16.params")
         #self.model5 = model5 = TextCNN(embed_mat, opt)
         #self.model5 = load_model(model5, model_dir=opt['model_dir'], model_name='TextCNN', name="layer_5_shuffle_epoch_5_2017-08-12#19:10:02_0.4102.params")
         # self.model6 = model6 = TextCNN(embed_mat, opt)
@@ -86,15 +86,16 @@ class Boost(nn.Module):
 
     def forward(self, x, y):
         logit1 = self.model1(x, y)
-        logit2 = self.model2(x, y)
-        logit3 = self.model3(x, y)
-        logit4 = self.model4(x, y)
-        return logit1 + logit2 + logit3 + logit4
+        return logit1
+        # logit2 = self.model2(x, y)
+        # logit3 = self.model3(x, y)
+        # logit4 = self.model4(x, y)
+        # return logit1 + logit2 + logit3 + logit4
         #logit5 = self.model5(x, y)
         # logit6 = self.model6(x, y)
         # logit7 = self.model7(x, y)
         # logit8 = self.model8(x, y)
         # logit9 = self.model9(x, y)
         # logit10 = self.model10(x, y)
-        logit = logit1 + logit2 + logit3 + logit4 + logit5# + logit6 + logit7 + logit8 + logit9 + logit10
-        return logit
+        # logit = logit1 + logit2 + logit3 + logit4 + logit5# + logit6 + logit7 + logit8 + logit9 + logit10
+        # return logit
