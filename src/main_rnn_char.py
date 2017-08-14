@@ -32,10 +32,8 @@ def train(**kwargs):
     vis = Visualizer(opt['model'])
     logger = Logger()
 
-    prefix = ''
-    if opt['use_double_length']: prefix += '_2'
-    if opt['data_shuffle']: prefix += '_shuffle'
-    print prefix
+    if opt['use_double_length']: prefix = '_2'
+    else: prefix = ''
     if opt['use_char']:
         logger.info('Load char data starting...')
         opt['embed_num'] = opt['char_embed_num']
@@ -96,9 +94,9 @@ def train(**kwargs):
     loss_weight = torch.ones(opt['class_num'])
     if opt['boost']:
         if opt['base_layer'] != 0:
-            cal_res = torch.load('{}/{}/layer_{}_cal_res_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']), map_location=lambda storage, loc: storage)
+            cal_res = torch.load('{}/{}/layer_{}_cal_res_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']), map_location=lambda storage, loc: storage)
             logger.info('Load cal_res successful!')
-            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+            loss_weight = torch.load('{}/{}/layer_{}_loss_weight_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
         else:
             cal_res = torch.zeros(opt['val_num'], opt['class_num'])
         print 'cur_layer:', opt['base_layer'] + 1, \
@@ -123,10 +121,10 @@ def train(**kwargs):
         model.cuda()
         loss_weight = loss_weight.cuda()
         
-    #import sys
-    #precision, recall, score = eval(val_loader, model, opt, save_res=True)
-    #print precision, recall, score
-    #sys.exit()
+    # import sys
+    # precision, recall, score = eval(val_loader, model, opt, save_res=False)
+    # print precision, recall, score
+    # sys.exit()
         
     loss_function = Loss(weight=loss_weight+1-loss_weight.mean())
     optimizer = torch.optim.Adam(model.parameters(), lr=opt['lr'])
@@ -181,9 +179,9 @@ def train(**kwargs):
                 cur_score = get_score(cal_res, truth)
                 logger.info('Layer {}: {}, Layer {}: {}'.format(opt['base_layer'], ori_score, opt['base_layer']+1, cur_score))
                 loss_weight = get_loss_weight(cal_res, truth)
-                torch.save(cal_res, '{}/{}/layer_{}_cal_res_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1))
+                torch.save(cal_res, '{}/{}/layer_{}_cal_res_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1))
                 logger.info('Save cal_res successful!')
-                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
+                torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
             break
 								
 def eval(val_loader, model, opt, isBatch=False, return_err=False, save_res=False, return_res=False):
@@ -264,10 +262,8 @@ def finetune_all(**kwargs):
     vis = Visualizer(opt['model'])
     logger = Logger()
 
-    prefix = ''
-    if opt['use_double_length']: prefix += '_2'
-    if opt['data_shuffle']: prefix += '_shuffle'
-    print prefix
+    if opt['use_double_length']: prefix = '_2'
+    else: prefix = ''
     if opt['use_char']:
         logger.info('Load char data starting...')
         opt['embed_num'] = opt['char_embed_num']
@@ -386,10 +382,8 @@ def test(**kwargs):
 
     logger = Logger()
 
-    prefix = ''
-    if opt['use_double_length']: prefix += '_2'
-    if opt['data_shuffle']: prefix += '_shuffle'
-    print prefix
+    if opt['use_double_length']: prefix = '_2'
+    else: prefix = ''
     if opt['use_char']:
         logger.info('Load char data starting...')
         opt['embed_num'] = opt['char_embed_num']
@@ -489,21 +483,14 @@ def train_stack(**kwargs):
               #(result_dir+'RCNNcha_2017-07-27#16:19:23_res.pt', 1),\
               #('snapshots/FastText/layer_1_cal_res_char.pt', 1),\
               #(result_dir+'FastText4_2017-07-28#15:14:47_res.pt', 4),\
+              
               #('snapshots/TextCNN/layer_17_cal_res_3.pt', 17),\
               (result_dir + 'RNN10_cal_res.pt', 10),\
-              (result_dir + 'TextCNN10_char.pt', 10),\
-              (result_dir + 'TextCNN10_top1.pt', 10),\
-              (result_dir + 'TextCNN10_top1_char.pt', 10),\
-              (result_dir + 'FastText10_res.pt', 10),\
-              (result_dir + 'TextCNN4_cal_res.pt', 4),\
-              #(result_dir + 'TextCNN9_augment.pt', 9),\
-              #(result_dir + 'TextCNN5_shuffle.pt', 5),\
-              #(result_dir + 'TextCNN1_word_char.pt', 1),\
-              #(result_dir + 'RNN10_CNN7.pt', 17),\
-              #(result_dir + 'RNN10_CNN8.pt', 18),\
-              #(result_dir + 'RNN10_CNN9.pt', 19),\
-              (result_dir + 'TextCNN1_word_top1.pt', 1),\
-              (result_dir + 'TextCNN1_word_top3.pt', 1)
+              (result_dir + 'TextCNN7_char_top5.pt', 7),\
+              (result_dir + 'TextCNN5_word_top1.pt', 5),\
+              (result_dir + 'TextCNN3_char_top1.pt', 3),\
+              (result_dir + 'TextCNN4_cal_res.pt', 4)
+              #('snapshots/TextCNN/layer_4_cal_res_3.pt', 4)
               ]
     label = result_dir+'label.pt'
     opt['stack_num'] = len(resmat)
