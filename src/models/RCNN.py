@@ -28,13 +28,13 @@ class RCNN(nn.Module):
 
         C = opt['class_num']
         
-        self.tdfc1 = nn.Linear(D, 256)
-        #self.tdfc1 = nn.Linear(D, D)
+        # self.tdfc1 = nn.Linear(D, 256)
+        self.tdfc1 = nn.Linear(D, 512)
         self.td1 = TimeDistributed(self.tdfc1)
         self.tdbn1 = nn.BatchNorm2d(1)
         
-        self.tdfc2 = nn.Linear(D, 256)
-        #self.tdfc2 = nn.Linear(D, D)
+        # self.tdfc2 = nn.Linear(D, 256)
+        self.tdfc2 = nn.Linear(D, 512)
         self.td2 = TimeDistributed(self.tdfc2)
         self.tdbn2 = nn.BatchNorm2d(1)
         
@@ -50,22 +50,22 @@ class RCNN(nn.Module):
         # self.lstm1 = nn.LSTM(512, 512, batch_first=True, bidirectional=True)
         # self.lstm2 = nn.LSTM(512, 512, batch_first=True, bidirectional=True)
 
-        self.lstm1 = nn.LSTM(256, 256, batch_first=True, bidirectional=True)
-        self.lstm2 = nn.LSTM(256, 256, batch_first=True, bidirectional=True)        
-        #self.lstm1 = nn.LSTM(D, D, batch_first=True, bidirectional=True)
-        #self.lstm2 = nn.LSTM(D, D, batch_first=True, bidirectional=True)
+        # self.lstm1 = nn.LSTM(256, 256, batch_first=True, bidirectional=True)
+        # self.lstm2 = nn.LSTM(256, 256, batch_first=True, bidirectional=True)        
+        self.lstm1 = nn.LSTM(512, 512, batch_first=True, bidirectional=True)
+        self.lstm2 = nn.LSTM(512, 512, batch_first=True, bidirectional=True)
 
-        #self.conv1 = nn.Conv2d(1, 1024, (3, D*3))
-        self.conv1 = nn.Conv2d(1, 256, (1, 256+256+D))
-        #self.convbn1 = nn.BatchNorm2d(1024)
-        self.convbn1 = nn.BatchNorm2d(256)
-        #self.conv2 = nn.Conv2d(1, 1024, (3, D*3))
-        self.conv2 = nn.Conv2d(1, 256, (1, 256+256+D))
-        #self.convbn2 = nn.BatchNorm2d(1024)
-        self.convbn2 = nn.BatchNorm2d(256)
+        self.conv1 = nn.Conv2d(1, 1024, (3, 512+512+512))
+        # self.conv1 = nn.Conv2d(1, 512, (1, 256+256+D))
+        self.convbn1 = nn.BatchNorm2d(1024)
+        # self.convbn1 = nn.BatchNorm2d(512)
+        self.conv2 = nn.Conv2d(1, 1024, (3, 512+512+512))
+        # self.conv2 = nn.Conv2d(1, 512, (1, 256+256+D))
+        self.convbn2 = nn.BatchNorm2d(1024)
+        # self.convbn2 = nn.BatchNorm2d(512)
         
-        #self.fc = nn.Linear(2048, C)
-       	self.fc = nn.Linear(512, C)
+        self.fc = nn.Linear(2048, C)
+       	# self.fc = nn.Linear(1024, C)
         
 #     def get_context_left(self, previous_context_left, previous_embedding, flag):
 #         l = getattr(self, 'l_{}'.format(flag))
@@ -129,10 +129,10 @@ class RCNN(nn.Module):
         y = F.relu(self.tdbn2(self.td2(y).unsqueeze(1))).squeeze(1)
         
         # x = self.get_context_embedding(x, 1)
-        h0_1 = Variable(torch.randn(2, batch_size, 256))
-        c0_1 = Variable(torch.randn(2, batch_size, 256))
-        #h0_1 = Variable(torch.randn(2, batch_size, self.D))
-        #c0_1 = Variable(torch.randn(2, batch_size, self.D))
+        h0_1 = Variable(torch.randn(2, batch_size, 256*2))
+        c0_1 = Variable(torch.randn(2, batch_size, 256*2))
+        # h0_1 = Variable(torch.randn(2, batch_size, self.D))
+        # c0_1 = Variable(torch.randn(2, batch_size, self.D))
         if self.opt['cuda']:
             h0_1 = h0_1.cuda()
             c0_1 = c0_1.cuda()
@@ -143,10 +143,10 @@ class RCNN(nn.Module):
         x = F.max_pool1d(x, x.size(2)).squeeze(2)
         
         # y = self.get_context_embedding(y, 2)
-        h0_2 = Variable(torch.randn(2, batch_size, 256))
-        c0_2 = Variable(torch.randn(2, batch_size, 256))
-        #h0_2 = Variable(torch.randn(2, batch_size, self.D))
-        #c0_2 = Variable(torch.randn(2, batch_size, self.D))
+        h0_2 = Variable(torch.randn(2, batch_size, 256*2))
+        c0_2 = Variable(torch.randn(2, batch_size, 256*2))
+        # h0_2 = Variable(torch.randn(2, batch_size, self.D))
+        # c0_2 = Variable(torch.randn(2, batch_size, self.D))
         if self.opt['cuda']:
             h0_2 = h0_2.cuda()
             c0_2 = c0_2.cuda()

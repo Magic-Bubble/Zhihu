@@ -79,19 +79,8 @@ def emsemble_test():
     cnn5_fintune = torch.load(result_dir + 'TextCNN5_finetune_test_res.pt')
     cnn5_loss_weight = torch.load('../snapshots/TextCNN1/layer_6_loss_weight_3.pt')
 
-    # cnn1_word_char_finetune = torch.load(result_dir + 'TextCNN1_finetune_word_char_test_res.pt')
-    # cnn1_word_char_loss_weight = torch.load(result_dir + 'TextCNN1_word_char_loss_weight.pt')
-
-    # cnn1_word_top1_finetune = torch.load(result_dir + 'TextCNN1_finetune_word_top1_test_res.pt')
-    # cnn1_word_top1_loss_weight = torch.load(result_dir + 'TextCNN1_word_top1_loss_weight.pt')
-
-    # cnn1_word_top3_finetune = torch.load(result_dir + 'TextCNN1_finetune_word_top3_test_res.pt')
-    # cnn1_word_top3_loss_weight = torch.load(result_dir + 'TextCNN1_word_top3_loss_weight.pt')
-
-    # cnn1_augment_finetune = torch.load(result_dir + 'TextCNN1_augment_test_res.pt')
-    # cnn1_augment_loss_weight = torch.load('../snapshots/delete/TextCNN/layer_2_loss_weight_augment.pt')
-
-    cnn7_dalao = torch.from_numpy(np.load(result_dir + 'ncnnp7.npy')).float()
+    rnn1_char_finetune = torch.load(result_dir + 'RNN1_finetune_char_test_res.pt')
+    rnn1_char_loss_weight = torch.load('../snapshots/RNN/layer_2_loss_weight_char.pt')
 
     logit = sigmoid(rnn10_finetune/10) * torch.sqrt(1-rnn10_loss_weight+rnn10_loss_weight.mean()).expand_as(rnn10_finetune) * 0.29 + \
             sigmoid(cnn10_char_finetune/10) * torch.sqrt(1-cnn10_char_loss_weight+cnn10_char_loss_weight.mean()).expand_as(cnn10_char_finetune) * 0.14 + \
@@ -99,7 +88,7 @@ def emsemble_test():
             sigmoid(cnn10_top1_char_finetune/10) * torch.sqrt(1-cnn10_top1_char_loss_weight+cnn10_top1_char_loss_weight.mean()).expand_as(cnn10_top1_char_finetune) * 0.15 + \
             sigmoid(fasttext10_finetune/10) * torch.sqrt(1-fasttext10_loss_weight+fasttext10_loss_weight.mean()).expand_as(fasttext10_finetune) * 0.02 + \
             sigmoid(cnn5_fintune/5) * torch.sqrt(1-cnn5_loss_weight+cnn5_loss_weight.mean()).expand_as(cnn5_fintune) * 0.16 + \
-            cnn7_dalao * 0.1
+            sigmoid(rnn1_char_finetune) * torch.sqrt(1-rnn1_char_loss_weight+rnn1_char_loss_weight.mean()).expand_as(rnn1_char_finetune) * 0.005
 
     predict_label_list = [list(ii) for ii in logit.topk(5, 1)[1]]
     lines = []
