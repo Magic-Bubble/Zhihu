@@ -123,10 +123,10 @@ def train(**kwargs):
         model.cuda()
         loss_weight = loss_weight.cuda()
         
-    #import sys
-    #precision, recall, score = eval(val_loader, model, opt, save_res=True)
-    #print precision, recall, score
-    #sys.exit()
+    # import sys
+    # precision, recall, score = eval(val_loader, model, opt, save_res=True)
+    # print precision, recall, score
+    # sys.exit()
         
     loss_function = Loss(weight=loss_weight+1-loss_weight.mean())
     optimizer = torch.optim.Adam(model.parameters(), lr=opt['lr'])
@@ -317,7 +317,7 @@ def finetune_all(**kwargs):
             if opt['use_char']:
                 loss_weight = torch.load('{}/{}/layer_{}_loss_weight_char.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
             elif opt['use_word']:
-                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_top1.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
+                loss_weight = torch.load('{}/{}/layer_{}_loss_weight_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+1), map_location=lambda storage, loc: storage)
         print 'cur_layer:', opt['base_layer'] + 1, \
               'loss_weight:', loss_weight.mean(), loss_weight.max(), loss_weight.min(), loss_weight.std()
 
@@ -495,15 +495,17 @@ def train_stack(**kwargs):
               (result_dir + 'TextCNN10_top1.pt', 10),\
               (result_dir + 'TextCNN10_top1_char.pt', 10),\
               (result_dir + 'FastText10_res.pt', 10),\
-              (result_dir + 'TextCNN4_cal_res.pt', 4),\
+              ('/mnt/result/results/TextCNN5_12h.pt', 5),\
+              ('/mnt/result/results/RNN1_char.pt', 1)
+              #(result_dir + 'TextCNN4_cal_res.pt', 4)
               #(result_dir + 'TextCNN9_augment.pt', 9),\
               #(result_dir + 'TextCNN5_shuffle.pt', 5),\
               #(result_dir + 'TextCNN1_word_char.pt', 1),\
               #(result_dir + 'RNN10_CNN7.pt', 17),\
               #(result_dir + 'RNN10_CNN8.pt', 18),\
               #(result_dir + 'RNN10_CNN9.pt', 19),\
-              (result_dir + 'TextCNN1_word_top1.pt', 1),\
-              (result_dir + 'TextCNN1_word_top3.pt', 1)
+              #(result_dir + 'TextCNN1_word_top1.pt', 1),\
+              #(result_dir + 'TextCNN1_word_top3.pt', 1)
               ]
     label = result_dir+'label.pt'
     opt['stack_num'] = len(resmat)

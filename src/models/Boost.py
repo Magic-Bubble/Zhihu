@@ -14,10 +14,10 @@ class Boost(nn.Module):
     def __init__(self, embed_mat, opt):
         super(Boost, self).__init__()
         
-        self.model1 = model1 = TextCNN(embed_mat, opt)
-        self.model1 = load_model(model1, model_dir=opt['model_dir'], model_name='TextCNN', name="layer_19_finetune_top1_epoch_6_2017-08-14#15:39:31.params")
-        # self.model2 = model2 = TextCNN1(embed_mat, opt)
-        # self.model2 = load_model(model2, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_2_finetune_epoch_6_2017-08-14#00:47:19.params")
+        self.model1 = model1 = TextCNN1(embed_mat, opt)
+        self.model1 = load_model(model1, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_1_epoch_5_2017-07-26#06:20:00_0.4111.params")
+        self.model2 = model2 = TextCNN1(embed_mat, opt)
+        self.model2 = load_model(model2, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_2_epoch_5_2017-08-02#11:25:22_0.4095.params")
         # self.model3 = model3 = TextCNN1(embed_mat, opt)
         # self.model3 = load_model(model3, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_3_finetune_epoch_6_2017-08-14#04:07:52.params")
         # self.model4 = model4 = TextCNN1(embed_mat, opt)
@@ -36,9 +36,9 @@ class Boost(nn.Module):
         # self.model10 = load_model(model10, model_dir=opt['model_dir'], model_name='TextCNN', name="layer_10_finetune_top1_char_epoch_6_2017-08-13#12:11:21.params")
 
         # self.model1 = model1 = RNN(embed_mat, opt)
-        # self.model1 = load_model(model1, model_dir=opt['model_dir'], model_name='RNN', name="layer_1_finetune_epoch_6_2017-08-09#11:55:20.params")
+        # self.model1 = load_model(model1, model_dir=opt['model_dir'], model_name='RNN', name="layer_1_epoch_5_2017-07-26#15:15:53_0.4116.params")
         # self.model2 = model2 = RNN(embed_mat, opt)
-        # self.model2 = load_model(model2, model_dir=opt['model_dir'], model_name='RNN', name='layer_2_finetune_epoch_6_2017-08-09#13:26:22.params')
+        # self.model2 = load_model(model2, model_dir=opt['model_dir'], model_name='RNN', name='layer_2_epoch_5_2017-07-31#01:28:34_0.4114.params')
         # self.model3 = model3 = RNN(embed_mat, opt)
         # self.model3 = load_model(model3, model_dir=opt['model_dir'], model_name='RNN', name='layer_3_finetune_epoch_6_2017-08-09#14:58:45.params')
         # self.model4 = model4 = RNN(embed_mat, opt)
@@ -56,10 +56,10 @@ class Boost(nn.Module):
         # self.model10 = model10 = RNN(embed_mat, opt)
         # self.model10 = load_model(model10, model_dir=opt['model_dir'], model_name='RNN', name='layer_10_finetune_epoch_6_2017-08-10#01:46:25.params')
         
-        #self.model1 = model1 = FastText(embed_mat, opt)
-        #self.model1 = load_model(model1, model_dir=opt['model_dir'], model_name='FastText', name="layer_8_epoch_5_2017-08-03#01:38:41_0.4087.params")
-        #self.model2 = model2 = FastText(embed_mat, opt)
-        #self.model2 = load_model(model2, model_dir=opt['model_dir'], model_name='FastText', name="layer_9_epoch_5_2017-08-03#05:50:32_0.4086.params")
+        # self.model1 = model1 = FastText(embed_mat, opt)
+        # self.model1 = load_model(model1, model_dir=opt['model_dir'], model_name='FastText', name="layer_1_epoch_5_2017-07-28#20:59:26_0.4097.params")
+        # self.model2 = model2 = FastText(embed_mat, opt)
+        # self.model2 = load_model(model2, model_dir=opt['model_dir'], model_name='FastText', name="layer_2_epoch_5_2017-07-29#21:36:43_0.4090.params")
         #self.model3 = model3 = FastText(embed_mat, opt)
         #self.model3 = load_model(model3, model_dir=opt['model_dir'], model_name='FastText', name='layer_10_epoch_5_2017-08-03#09:52:18_0.4091.params')
         
@@ -86,7 +86,8 @@ class Boost(nn.Module):
 
     def forward(self, x, y):
         logit1 = self.model1(x, y)
-        return logit1
+        logit2 = self.model2(x, y)
+        return logit1+logit2
         # logit2 = self.model2(x, y)
         # logit3 = self.model3(x, y)
         # logit4 = self.model4(x, y)
