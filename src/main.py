@@ -185,7 +185,7 @@ def train(**kwargs):
                 torch.save(loss_weight, '{}/{}/layer_{}_loss_weight_3.pt'.format(opt['model_dir'], opt['model'], opt['base_layer']+2))
             break
 								
-def eval(val_loader, model, opt, isBatch=False, return_err=False, save_res=False, return_res=False):
+def eval(val_loader, model, opt, isBatch=False, save_res=False, return_res=False):
     model.eval()
     predict_label_list, marked_label_list = [], []
     if isBatch:
@@ -221,19 +221,6 @@ def eval(val_loader, model, opt, isBatch=False, return_err=False, save_res=False
 
     if return_res:
         return res, truth
-            
-    if return_err:
-        sample_per_class = torch.zeros(opt['class_num'])
-        error_per_class = torch.zeros(opt['class_num'])
-        if opt['cuda']:
-            sample_per_class = sample_per_class.cuda()
-            error_per_class = error_per_class.cuda()
-        for predict_labels, marked_labels in zip(predict_label_list, marked_label_list):
-            for true_label in marked_labels:
-                sample_per_class[true_label] += 1
-                if true_label not in predict_labels:
-                    error_per_class[true_label] += 1
-        return error_per_class, sample_per_class
 
     right_label_num = 0
     right_label_at_pos_num = [0, 0, 0, 0, 0]
@@ -480,27 +467,13 @@ def train_stack(**kwargs):
     logger = Logger()
     				
     result_dir = '/home/dyj/'
-    resmat = [#(result_dir+'TextCNN1_2017-07-27#10:15:20_res.pt', 1),\
-              #(result_dir+'RNN1_2017-07-27#10:48:05_res.pt', 1),\
-              #(result_dir+'RCNN1_2017-07-27#11:01:07_res.pt', 1),\
-              #(result_dir+'RCNNcha_2017-07-27#16:19:23_res.pt', 1),\
-              #('snapshots/FastText/layer_1_cal_res_char.pt', 1),\
-              #(result_dir+'FastText4_2017-07-28#15:14:47_res.pt', 4),\
-              #('snapshots/TextCNN/layer_17_cal_res_3.pt', 17),\
-              (result_dir + 'RNN10_cal_res.pt', 10),\
+    resmat = [(result_dir + 'RNN10_cal_res.pt', 10),\
               (result_dir + 'TextCNN10_char.pt', 10),\
               (result_dir + 'TextCNN10_top1.pt', 10),\
               (result_dir + 'TextCNN10_top1_char.pt', 10),\
               (result_dir + 'FastText10_res.pt', 10),\
               ('/mnt/result/results/TextCNN5_12h.pt', 5),\
               ('/mnt/result/results/RNN1_char.pt', 1)
-              #(result_dir + 'TextCNN4_cal_res.pt', 4)
-              #(result_dir + 'TextCNN1_word_char.pt', 1),\
-              #(result_dir + 'RNN10_CNN7.pt', 17),\
-              #(result_dir + 'RNN10_CNN8.pt', 18),\
-              #(result_dir + 'RNN10_CNN9.pt', 19),\
-              #(result_dir + 'TextCNN1_word_top1.pt', 1),\
-              #(result_dir + 'TextCNN1_word_top3.pt', 1)
               ]
     label = result_dir+'label.pt'
     opt['stack_num'] = len(resmat)
