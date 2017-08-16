@@ -11,3 +11,4 @@ src/results/*
 src/nohup.out
 *.pyc
 results/*
+submission/*
