@@ -34,7 +34,6 @@ def train(**kwargs):
 
     prefix = ''
     if opt['use_double_length']: prefix += '_2'
-    if opt['data_shuffle']: prefix += '_shuffle'
     print prefix
     if opt['use_char']:
         logger.info('Load char data starting...')
@@ -266,7 +265,6 @@ def finetune_all(**kwargs):
 
     prefix = ''
     if opt['use_double_length']: prefix += '_2'
-    if opt['data_shuffle']: prefix += '_shuffle'
     print prefix
     if opt['use_char']:
         logger.info('Load char data starting...')
@@ -388,7 +386,6 @@ def test(**kwargs):
 
     prefix = ''
     if opt['use_double_length']: prefix += '_2'
-    if opt['data_shuffle']: prefix += '_shuffle'
     print prefix
     if opt['use_char']:
         logger.info('Load char data starting...')
@@ -498,8 +495,6 @@ def train_stack(**kwargs):
               ('/mnt/result/results/TextCNN5_12h.pt', 5),\
               ('/mnt/result/results/RNN1_char.pt', 1)
               #(result_dir + 'TextCNN4_cal_res.pt', 4)
-              #(result_dir + 'TextCNN9_augment.pt', 9),\
-              #(result_dir + 'TextCNN5_shuffle.pt', 5),\
               #(result_dir + 'TextCNN1_word_char.pt', 1),\
               #(result_dir + 'RNN10_CNN7.pt', 17),\
               #(result_dir + 'RNN10_CNN8.pt', 18),\

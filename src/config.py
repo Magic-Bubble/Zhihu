@@ -82,8 +82,6 @@ class DefaultConfig(dict):
 		self['use_word_char'] = False
 		self['static'] = True
 		self['use_double_length'] = True
-		self['data_shuffle'] = False
-		self['data_augment'] = False
         
 		self['class_num'] = 1999
 		self['word_embed_num'] = 411722
