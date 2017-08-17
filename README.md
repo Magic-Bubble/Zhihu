@@ -69,6 +69,24 @@ python2 main.py train --model=RNN --use_word=True --batch_size=256　--boost=Tru
 
 将base_layer依次改为1、２、３...，可逐层训练，训练的累加结果保存在与模型同目录，文件名包含cal_res，当前层的loss_weight也存于此处
 
+### 各模型结果
+
+**线下结果，线上可高2个多千分点**
+
+word结果
+
+单模型:
+- FastText: 0.4097
+- TextCNN: 0.4111
+- RNN: 0.4116
+
+Boosting模型:
+- FastText10层: 0.41892
+- RNN10层: 0.42642
+- TextCNN10层: 0.42654
+
+char结果比word低约1个百分点，但融合后会涨3个千分点左右
+
 ### 测试
 
 - 加载训好的模型并测试：参考gen_test_res.py
