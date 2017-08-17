@@ -26,7 +26,8 @@ def emsemble_test():
     topic_idx = np.load('../../data_preprocess/topic/topic_idx.npy')
     
     # result_dir = '/home/dyj/'
-    result_dir = '/mnt/result/results/'
+    # result_dir = '/mnt/result/results/'
+    result_dir = '../results/'
     # cnn1 = torch.load(result_dir + 'TextCNN1_2017-07-27#12:30:16_test_res.pt')
     # cnn1_loss_weight = torch.load(result_dir + 'TextCNN1_loss_weight.pt')
     # rnn1 = torch.load(result_dir+'RNN1_2017-07-27#12:35:51_test_res.pt')
@@ -61,25 +62,32 @@ def emsemble_test():
     #     sigmoid(cnn4/4) * torch.sqrt(1-cnn4_loss_weight+cnn4_loss_weight.mean()).expand_as(cnn4) * 0.1154 + \
     #     cnn7 / 7 * 0.1154
 
-    rnn10_finetune = torch.load(result_dir + 'RNN10_finetune_test_res.pt')
+    # rnn10_finetune = torch.load(result_dir + 'RNN10_finetune_test_res.pt')
+    rnn10_finetune = torch.load(result_dir + 'Boost_RNN10_test_res.pt')
     rnn10_loss_weight = torch.load('../snapshots/RNN/layer_11_loss_weight_3.pt')
 
-    cnn10_char_finetune = torch.load(result_dir + 'TextCNN10_finetune_char_test_res.pt')
+    # cnn10_char_finetune = torch.load(result_dir + 'TextCNN10_finetune_char_test_res.pt')
+    cnn10_char_finetune = torch.load(result_dir + 'Boost_CNN10_char_test_res.pt')
     cnn10_char_loss_weight = torch.load('../snapshots/TextCNN/layer_11_loss_weight_char.pt')
 
-    cnn10_top1_finetune = torch.load(result_dir + 'TextCNN10_finetune_top1_test_res.pt')
+    # cnn10_top1_finetune = torch.load(result_dir + 'TextCNN10_finetune_top1_test_res.pt')
+    cnn10_top1_finetune = torch.load(result_dir + 'Boost_CNN10_test_res.pt')
     cnn10_top1_loss_weight = torch.load('../snapshots/TextCNN/layer_11_loss_weight_top1_top5.pt')
 
-    cnn10_top1_char_finetune = torch.load(result_dir + 'TextCNN10_finetune_top1_char_test_res.pt')
+    # cnn10_top1_char_finetune = torch.load(result_dir + 'TextCNN10_finetune_top1_char_test_res.pt')
+    cnn10_top1_finetune = torch.load(result_dir + 'Boost_CNN10_char_top1_test_res.pt')
     cnn10_top1_char_loss_weight = torch.load('../snapshots/TextCNN/layer_11_loss_weight_top1_char_top5.pt')
 
-    fasttext10_finetune = torch.load(result_dir + 'FastText10_finetune_test_res.pt')
+    # fasttext10_finetune = torch.load(result_dir + 'FastText10_finetune_test_res.pt')
+    fasttext10_finetune = torch.load(result_dir + 'Boost_FastText10_test_res.pt')
     fasttext10_loss_weight = torch.load('../snapshots/FastText/layer_11_loss_weight_3.pt')
 
-    cnn5_fintune = torch.load(result_dir + 'TextCNN5_finetune_test_res.pt')
+    # cnn5_fintune = torch.load(result_dir + 'TextCNN5_finetune_test_res.pt')
+    cnn5_fintune = torch.load(result_dir + 'Boost_CNN5_test_res.pt')
     cnn5_loss_weight = torch.load('../snapshots/TextCNN1/layer_6_loss_weight_3.pt')
 
-    rnn1_char_finetune = torch.load(result_dir + 'RNN1_finetune_char_test_res.pt')
+    # rnn1_char_finetune = torch.load(result_dir + 'RNN1_finetune_char_test_res.pt')
+    rnn1_char_finetune = torch.load(result_dir + 'Boost_RNN1_char_test_res.pt')
     rnn1_char_loss_weight = torch.load('../snapshots/RNN/layer_2_loss_weight_char.pt')
 
     logit = sigmoid(rnn10_finetune/10) * torch.sqrt(1-rnn10_loss_weight+rnn10_loss_weight.mean()).expand_as(rnn10_finetune) * 0.29 + \

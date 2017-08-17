@@ -445,7 +445,7 @@ def test(**kwargs):
         predict_label_list += [list(ii) for ii in logit.topk(5, 1)[1].data]
 
     if opt.get('save_resmat', False):
-        torch.save(res, '{}/{}_{}_test_res.pt'.format(opt['result_dir'], opt['model'], datetime.datetime.now().strftime('%Y-%m-%d#%H:%M:%S')))
+        torch.save(res, '{}/{}_test_res.pt'.format(opt['result_dir'], opt['model']))
 	return
 
     lines = []

@@ -23,7 +23,7 @@ class Boost(nn.Module):
         # self.model4 = model4 = TextCNN1(embed_mat, opt)
         # self.model4 = load_model(model4, model_dir=opt['model_dir'], model_name='TextCNN1', name="layer_4_finetune_epoch_6_2017-08-14#07:28:16.params")
         #self.model5 = model5 = TextCNN(embed_mat, opt)
-        #self.model5 = load_model(model5, model_dir=opt['model_dir'], model_name='TextCNN', name="layer_5_shuffle_epoch_5_2017-08-12#19:10:02_0.4102.params")
+        #self.model5 = load_model(model5, model_dir=opt['model_dir'], model_name='TextCNN', name="layer_5_epoch_5_2017-08-12#19:10:02_0.4102.params")
         # self.model6 = model6 = TextCNN(embed_mat, opt)
         # self.model6 = load_model(model6, model_dir=opt['model_dir'], model_name='TextCNN', name="layer_6_finetune_top1_char_epoch_6_2017-08-13#01:16:15.params")
         # self.model7 = model7 = TextCNN(embed_mat, opt)
