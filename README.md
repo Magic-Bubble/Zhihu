@@ -18,15 +18,11 @@ python2 -m visdom.server
 
 ### 数据分析
 
-代码在data_analysis文件夹下，分析结果见链接：
+代码在data_analysis文件夹下
 
 ### 数据处理
 
 代码在data_preprocess文件夹下，question_preprocess、label_preprocess、topic_preprocess，分别有对应的notebook和py版本。
-
-处理后的全部数据文件链接：
-
-解压后放置在data_preprocess中
 
 ### 单模型训练
 
