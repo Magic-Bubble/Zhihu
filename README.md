@@ -79,3 +79,7 @@ char结果比word低约1个百分点，但融合后会涨3个千分点左右
 
 - 加载训好的模型并测试：参考gen_test_res.py
 - 直接融合各模型测试的结果文件：参考utils/resmat.py
+
+### 细节
+
+- 更详细的描述，请移步知乎解决方案文章：https://zhuanlan.zhihu.com/p/29020616
